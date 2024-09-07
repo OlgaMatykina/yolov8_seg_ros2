@@ -60,10 +60,14 @@ class YOLOv8SegNode(Node):
         self.br = CvBridge()
 
         self.sub_image = self.create_subscription(
-            Image, "image", self.on_image, self.queue_size
+            # Image, "image", self.on_image, self.queue_size
+            Image, "/camera/camera/color/image_raw", self.on_image, self.queue_size
+
         )
         self.pub_segmentation = self.create_publisher(
-            Objects, "segmentation", self.queue_size
+            # Objects, "segmentation", self.queue_size
+            Objects, "/camera/camera/segmentation", self.queue_size
+
         )
 
     def on_image(self, image_msg: Image):

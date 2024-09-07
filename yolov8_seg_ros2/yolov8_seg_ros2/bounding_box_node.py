@@ -52,7 +52,7 @@ class BoundingBoxNode(Node):
         # Подписка на топик с PointCloud2
         self.subscription = self.create_subscription(
             ObjectPointClouds,
-            'object_point_cloud',
+            '/camera/camera/object_point_cloud',
             self.listener_callback,
             5
         )
@@ -76,7 +76,7 @@ class BoundingBoxNode(Node):
 
             point_cloud_o3d = self.pointcloud2_to_open3d(object.point_cloud)
 
-            point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d)
+            # point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d)
             
             # Создаем минимальный ограничивающий бокс
             bounding_box = self.create_minimal_oriented_bounding_box(point_cloud_o3d)

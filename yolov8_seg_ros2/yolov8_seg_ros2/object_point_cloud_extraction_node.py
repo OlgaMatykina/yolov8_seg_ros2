@@ -46,10 +46,10 @@ class ObjectPointCloudExtractionNode(Node):
 
         self.br = CvBridge()
   
-        depth_info_sub = message_filters.Subscriber(self, CameraInfo, "depth_info")
-        depth_sub = message_filters.Subscriber(self, Image, "depth") #надо добавить в launch remapping topics
+        depth_info_sub = message_filters.Subscriber(self, CameraInfo, "/camera/camera/aligned_depth_to_color/camera_info")
+        depth_sub = message_filters.Subscriber(self, Image, "/camera/camera/aligned_depth_to_color/image_raw") #надо добавить в launch remapping topics
         objects_sub = message_filters.Subscriber(
-            self, Objects, "segmentation"
+            self, Objects, "/camera/camera/segmentation"
         )
 
         self.ts = message_filters.ApproximateTimeSynchronizer(
@@ -58,11 +58,11 @@ class ObjectPointCloudExtractionNode(Node):
         self.ts.registerCallback(self.on_image)
 
         self.object_point_cloud_pub = self.create_publisher(
-            ObjectPointClouds, "object_point_cloud", self.queue_size #надо добавить в launch remapping topics
+            ObjectPointClouds, "/camera/camera/object_point_cloud", self.queue_size #надо добавить в launch remapping topics
         )
 
         self.visualization_pub = self.create_publisher( #надо добавить в launch remapping topics
-            PointCloud2, "object_point_cloud_vis", self.queue_size)
+            PointCloud2, "/camera/camera/object_point_cloud_vis", self.queue_size)
 
 
     def on_image(self, depth_info_msg: CameraInfo, depth_msg: Image, objects_msg: Objects, erosion_size=0, pool_size=2):

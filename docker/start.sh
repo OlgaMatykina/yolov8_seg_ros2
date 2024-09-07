@@ -23,12 +23,12 @@ else
 fi
 
 xhost +
-docker run -it -d --rm \
+docker run -it -d \
         $ARGS \
         --env="DISPLAY=$DISPLAY" \
         --env="QT_X11_NO_MITSHM=1" \
         --privileged \
-        --name yolov8_seg \
+        --name yolov8_seg_dds \
         --net=host \
         --ipc=host \
         --pid=host \
@@ -36,5 +36,5 @@ docker run -it -d --rm \
         -v `pwd`/../yolov8_seg_ros2:/home/docker_semseg/colcon_ws/src/yolov8_seg_ros2:rw \
         -v `pwd`/../yolov8_seg_interfaces:/home/docker_semseg/colcon_ws/src/yolov8_seg_interfaces:rw \
         -v `pwd`/../bags:/home/docker_semseg/bags:rw \
-        ${ARCH}_ros2/yolov8_seg:latest
+        ${ARCH}_ros2/yolov8_seg_dds:latest
 xhost -

@@ -37,9 +37,9 @@ class VisualizerNode(Node):
             self.get_parameter("queue_size").get_parameter_value().integer_value
         )
 
-        image_sub = message_filters.Subscriber(self, Image, "image")
+        image_sub = message_filters.Subscriber(self, Image, "/camera/camera/color/image_raw")
         segmentation_sub = message_filters.Subscriber(
-            self, Objects, "segmentation"
+            self, Objects, "/camera/camera/segmentation"
         )
 
         self.ts = message_filters.TimeSynchronizer(
@@ -48,7 +48,7 @@ class VisualizerNode(Node):
         self.ts.registerCallback(self.on_image_segmentation)
 
         self.pub_segmentation_color = self.create_publisher(
-            Image, "segmentation_color", self.queue_size
+            Image, "/camera/camera/segmentation_color", self.queue_size
         )
 
         self.br = CvBridge()
@@ -67,6 +67,8 @@ class VisualizerNode(Node):
         segm_color_msg = self.br.cv2_to_imgmsg(segmentation_color, "bgr8")
         segm_color_msg.header = segm_msg.header
 
+        print("Publishing visualization.")
+        print("Publishing.")
         self.pub_segmentation_color.publish(segm_color_msg)
 
     def draw_masks(self, image, masks, classes):

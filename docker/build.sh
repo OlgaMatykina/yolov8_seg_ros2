@@ -20,4 +20,4 @@ docker build . \
     --build-arg UID=$(id -u) \
     --build-arg GID=$(id -g) \
     --build-arg NUM_THREADS=${NUM_THREADS} \
-    -t ${ARCH}_ros2/yolov8_seg:latest
+    -t ${ARCH}_ros2/yolov8_seg_dds:latest

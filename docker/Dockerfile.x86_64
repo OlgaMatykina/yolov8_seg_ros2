@@ -29,6 +29,7 @@ RUN apt-get update \
         ros-humble-ros-base \
         python3-colcon-common-extensions \
         ros-humble-cv-bridge \
+        ros-humble-rmw-cyclonedds-cpp \
     && rm -rf /var/lib/apt/lists/*
 
 # RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
@@ -41,7 +42,7 @@ RUN apt-get update \
 #     ros-humble-rosbag2-bag-v2-plugins \
 #     ros-humble-rosbag2-converter-default-plugins
 
-RUN python3 -m pip install opencv-python ultralytics open3d
+RUN python3 -m pip install opencv-python ultralytics
 
 # add user and his password
 ARG USER=docker_semseg
@@ -56,3 +57,10 @@ RUN useradd -m ${USER} --uid=${UID} && echo "${USER}:${PW}" | chpasswd && adduse
 WORKDIR /home/${USER}
 RUN mkdir -p colcon_ws/src && chown -R ${UID}:${GID} /home/${USER}
 USER ${UID}:${GID}
+
+COPY entrypoint.sh /home/${USER}
+
+RUN python3 -m pip install open3d
+
+ENTRYPOINT ["bash", "/home/docker_semseg/entrypoint.sh"]
+
