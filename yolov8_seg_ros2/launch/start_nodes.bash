@@ -9,4 +9,9 @@ python3 bounding_box_node.py &
 PID4=$!
 
 
-trap "kill $PID1 $PID2 $PID3 $PID4" SIGNT 
+trap "kill $PID1 $PID2 $PID3 $PID4" SIGNT
+
+wait $PID1
+wait $PID2
+wait $PID3
+wait $PID4
