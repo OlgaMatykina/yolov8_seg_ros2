@@ -8,7 +8,6 @@ from visualization import draw_objects
 
 import rclpy
 import cv2
-import cv2.aruco as aruco
 import numpy as np
 import torch
 
@@ -70,9 +69,6 @@ class YOLOv8SegNode(Node):
             Objects, "/camera/camera/segmentation", self.queue_size
 
         )
-        # Добавляем ArUco-маркеры
-        self.aruco_dict = aruco.getPredefinedDictionary(cv2.aruco.DICT_ARUCO_ORIGINAL)
-        self.aruco_params = aruco.DetectorParameters()
 
     def on_image(self, image_msg: Image):
         # image = self.br.imgmsg_to_cv2(image_msg, desired_encoding="passthrough")
@@ -88,13 +84,24 @@ class YOLOv8SegNode(Node):
             image, device=self.device, conf=self.confidence, iou=self.treshold
         )[0]
 
+        # #print('PREDICTIONS', predictions)
+
         conf = predictions.boxes.conf.cpu().numpy().astype(np.float32).tolist()
 
         classes = predictions.boxes.cls.cpu().numpy().astype(np.uint8).tolist()
 
+        # boxes = predictions.boxes.xywh.cpu().numpy()  # x_c, y_c, w, h
         boxes = predictions.boxes.xyxy.cpu().numpy()
+        # boxes[:, 0] -= boxes[:, 2] / 2
+        # boxes[:, 1] -= boxes[:, 3] / 2
         boxes = boxes.astype(np.uint32).tolist()
-        
+        # obj_boxes = []
+        # for box in boxes:
+        #     obj_box = Box()
+        #     # obj_box.x, obj_box.y, obj_box.w, obj_box.h = box
+        #     obj_box.x1, obj_box.y1, obj_box.x2, obj_box.y2 = box
+        #     obj_boxes.append(obj_box)
+
         masks = predictions.masks
         height, width = predictions.orig_shape
         if masks is None:
@@ -107,34 +114,27 @@ class YOLOv8SegNode(Node):
             masks = masks.transpose(1, 2, 0)
             scaled_masks = scale_image((mask_height, mask_width), masks, (height, width))
             scaled_masks = scaled_masks.transpose(2, 0, 1)
-
+        #print('MASKS.DATA', scaled_masks.shape)
         rois = get_masks_rois(scaled_masks)
-
+        #print('ROIS', rois)
         masks_in_rois = get_masks_in_rois(scaled_masks, rois)
-        
-        # Добавляем распознавание ArUco-маркеров
-        marker_ids = []
-        for roi in rois:
-            # x, y, w, h = roi
-            x = int(roi[1].start)
-            y = int(roi[0].start)
-            w = int(roi[1].stop - roi[1].start)
-            h = int(roi[0].stop - roi[0].start)
-            roi_image = image[y:y+h, x:x+w]
-            
-            # Обнаружение меток
-            detector = aruco.ArucoDetector(self.aruco_dict, self.aruco_params)
-            # corners, ids, rejectedImgPoints = detector.detectMarkers(roi_image, self.aruco_dict, self.aruco_params)
-            corners, ids, rejectedImgPoints = detector.detectMarkers(roi_image)
+        tracking_ids = np.array(range(len(conf)))
+        #print('MASKS_IN_ROIS', masks_in_rois)
+        # obj_masks = []
+        # for mask in masks:
+        #     obj_mask = Mask()
+        #     obj_mask.mask_poly = mask.astype(np.uint32).ravel().tolist()
+        #     obj_masks.append(obj_mask)
 
-            
-            if ids is not None:
-                for id in ids:
-                    marker_ids.append(id[0])
-            else:
-                marker_ids.append(None)
+        segmentation_objects_msg = to_objects_msg(conf, classes, tracking_ids, boxes, masks_in_rois, rois, width, height)
 
-        segmentation_objects_msg = to_objects_msg(conf, classes, marker_ids, boxes, masks_in_rois, rois, width, height)
+        # objects = Objects()
+        # num = len(conf)
+        # objects.scores = conf
+        # objects.classes_ids = classes
+        # tracking_ids = classes
+        # objects.boxes = obj_boxes
+        # objects.masks = obj_masks
 
         return segmentation_objects_msg
 

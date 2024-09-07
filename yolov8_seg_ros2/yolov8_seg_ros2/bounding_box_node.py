@@ -219,6 +219,7 @@ def main(args=None):
     rclpy.init(args=args)
 
     bounding_box_node = BoundingBoxNode()
+    bounding_box_node.get_logger().info("BoundingBox node is ready")
 
     rclpy.spin(bounding_box_node)
 
