@@ -35,9 +35,9 @@ source install/setup.bash
 ros2 bag play name_rosbag
 ```
 (флаг  -loop для зацикливания)
-запуск нод через файл осуществляется
+запуск нод осуществляется по команде
 ```
-/colcon_ws/src/yolov8_seg_ros2/launch/start_nodes.bash 
+ros2 launch ./src/yolov8_seg_track_ros2/launch/yolov8_seg_launch.py
 ```
 
 Целевой росбэг2 находится внутри контейнера /home/docker_semseg/bags/rosbag2_2024_09_05-21_47_22
