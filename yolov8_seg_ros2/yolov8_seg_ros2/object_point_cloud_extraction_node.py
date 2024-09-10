@@ -24,7 +24,7 @@ from object_point_cloud_extraction import ObjectPointCloudExtraction
 
 
 class ObjectPointCloudExtractionNode(Node):
-    def __init__(self, target_frame='camera_color_frame',) -> None:
+    def __init__(self, target_frame='camera_optical_frame',) -> None:
         super().__init__("object_point_cloud_extraction_node")
 
         self.target_frame = target_frame
@@ -46,8 +46,8 @@ class ObjectPointCloudExtractionNode(Node):
 
         self.br = CvBridge()
   
-        depth_info_sub = message_filters.Subscriber(self, CameraInfo, "/camera/camera/aligned_depth_to_color/camera_info")
-        depth_sub = message_filters.Subscriber(self, Image, "/camera/camera/aligned_depth_to_color/image_raw") #надо добавить в launch remapping topics
+        depth_info_sub = message_filters.Subscriber(self, CameraInfo, "/camera2/camera2/aligned_depth_to_color/camera_info")
+        depth_sub = message_filters.Subscriber(self, Image, "/camera2/camera2/aligned_depth_to_color/image_raw") #надо добавить в launch remapping topics
         objects_sub = message_filters.Subscriber(
             self, Objects, "/camera/camera/segmentation"
         )

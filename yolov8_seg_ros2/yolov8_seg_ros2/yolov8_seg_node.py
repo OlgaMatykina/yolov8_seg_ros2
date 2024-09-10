@@ -38,7 +38,7 @@ class YOLOv8SegNode(Node):
             if not torch.cuda.is_available():
                 self.device = "cpu"
 
-        self.declare_parameter("confidence", 0.25)
+        self.declare_parameter("confidence", 0.5)
         self.confidence = (
             self.get_parameter("confidence").get_parameter_value().double_value
         )
@@ -62,7 +62,7 @@ class YOLOv8SegNode(Node):
 
         self.sub_image = self.create_subscription(
             # Image, "image", self.on_image, self.queue_size
-            Image, "/camera/camera/color/image_raw", self.on_image, self.queue_size
+            Image, "/camera2/camera2/color/image_raw", self.on_image, self.queue_size
 
         )
         self.pub_segmentation = self.create_publisher(
@@ -114,7 +114,8 @@ class YOLOv8SegNode(Node):
         
         # Добавляем распознавание ArUco-маркеров
         marker_ids = []
-        for roi in rois:
+        count_num=0
+        for i, roi in enumerate(rois): #на каждой коробке должен записывать не больше 1 aruco
             # x, y, w, h = roi
             x = int(roi[1].start)
             y = int(roi[0].start)
@@ -126,15 +127,65 @@ class YOLOv8SegNode(Node):
             detector = aruco.ArucoDetector(self.aruco_dict, self.aruco_params)
             # corners, ids, rejectedImgPoints = detector.detectMarkers(roi_image, self.aruco_dict, self.aruco_params)
             corners, ids, rejectedImgPoints = detector.detectMarkers(roi_image)
-
             
-            if ids is not None:
-                for id in ids:
-                    marker_ids.append(id[0])
-            else:
-                marker_ids.append(None)
+            if ids is not None: 
+                aruco_mask = np.zeros(roi_image.shape[:2], dtype=np.uint8)
+                # for id in ids:
+                pts = corners[0][0].astype(np.int32)
+                cv2.fillPoly(aruco_mask, [pts], 1)
+
+                if np.any(masks_in_rois[i]*aruco_mask):
+
+                # print(masks_in_rois[i])
+                # print(aruco_mask)
+                # if np.all((aruco_mask==0 | np.all(masks_in_rois[i]==aruco_mask))):
+                    marker_ids.append(ids[0][0])
+                else:
+                    marker_ids.append(count_num)
+                    count_num+=1
+
+            else: #если есть маска, но не виден aruco
+                marker_ids.append(count_num)
+                count_num+=1
+
+        # tracking_ids = np.array(range(len(conf)))
+
+        print('MARKSER_IDS', marker_ids)
+
+        unique_ids = set(marker_ids)
+    
+        # Для каждого уникального маркерного ID проверяем, если есть дубликаты
+        for marker_id in unique_ids:
+            indices = [i for i, id_ in enumerate(marker_ids) if id_ == marker_id]
+
+            if len(indices) > 1:
+                # Если маркер повторяется, вычисляем площади масок для каждого
+                areas = [cv2.contourArea(cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0][0]) 
+                        for i, mask in enumerate(masks_in_rois) if i in indices]
+                
+                # Найдем индекс маски с максимальной площадью
+                max_area_index = indices[np.argmax(areas)]
+                
+                # Удаляем остальные маски (оставляем только ту, что с максимальной площадью)
+                for i in indices:
+                    if i != max_area_index:
+                        # Удаляем меньшую маску из marker_ids, tracking_ids и масок
+                        marker_ids.pop(i)
+                        conf.pop(i)
+                        classes.pop(i)
+                        boxes.pop(i)
+                        masks_in_rois.pop(i)
+                        rois.pop(i)
+
+
+
+        num = len(conf)
+        if len(marker_ids)>num:
+            marker_ids = marker_ids[:num]
 
         segmentation_objects_msg = to_objects_msg(conf, classes, marker_ids, boxes, masks_in_rois, rois, width, height)
+        # segmentation_objects_msg = to_objects_msg(conf, classes, tracking_ids, boxes, masks_in_rois, rois, width, height) #заглушка пока marker_ids работает нестабильно
+
 
         return segmentation_objects_msg
 

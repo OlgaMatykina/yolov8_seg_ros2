@@ -76,14 +76,15 @@ class BoundingBoxNode(Node):
 
             point_cloud_o3d = self.pointcloud2_to_open3d(object.point_cloud)
 
-            # point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d)
+            point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d)
             
             # Создаем минимальный ограничивающий бокс
             bounding_box = self.create_minimal_oriented_bounding_box(point_cloud_o3d)
 
             
-            marker = self.create_bounding_box_marker(bounding_box, object.tracking_id)
-            marker_array.markers.append(marker)
+            marker_box, marker_text = self.create_bounding_box_marker(bounding_box, object.tracking_id)
+            marker_array.markers.append(marker_box)
+            marker_array.markers.append(marker_text)
 
             bbox_msg = BoundingBox()
             bbox_msg.class_id = object.class_id
@@ -175,45 +176,64 @@ class BoundingBoxNode(Node):
     
     def create_bounding_box_marker(self, bounding_box, id):
         # Создаем Marker для визуализации ограничивающего бокса в RViz
-        marker = Marker()
-        marker.header.frame_id = "camera_color_frame"
-        marker.header.stamp = self.get_clock().now().to_msg()
-        marker.ns = "bounding_box"
-        marker.id = id
-        marker.type = Marker.CUBE  # Куб для визуализации ограничивающего бокса
-        marker.action = Marker.ADD
+        marker_box = Marker()
+        marker_box.header.frame_id = "camera_optical_frame"
+        marker_box.header.stamp = self.get_clock().now().to_msg()
+        marker_box.ns = "bounding_box"
+        marker_box.id = id
+        marker_box.type = Marker.CUBE  # Куб для визуализации ограничивающего бокса
+        marker_box.action = Marker.ADD
 
          # Установка позиции (центр бокса)
         center = bounding_box.center
-        marker.pose.position.x = center[0]
-        marker.pose.position.y = center[1]
-        marker.pose.position.z = center[2]
+        marker_box.pose.position.x = center[0]
+        marker_box.pose.position.y = center[1]
+        marker_box.pose.position.z = center[2]
 
         # Преобразование матрицы вращения в кватернион
         rotation_matrix = np.array(bounding_box.R)
         rotation = R.from_matrix(rotation_matrix)
         quat = rotation.as_quat()  # Возвращает кватернион [x, y, z, w]
 
-        marker.pose.orientation.x = quat[0]
-        marker.pose.orientation.y = quat[1]
-        marker.pose.orientation.z = quat[2]
-        marker.pose.orientation.w = quat[3]
+        marker_box.pose.orientation.x = quat[0]
+        marker_box.pose.orientation.y = quat[1]
+        marker_box.pose.orientation.z = quat[2]
+        marker_box.pose.orientation.w = quat[3]
 
         # Размеры бокса (шкала)
         extent = bounding_box.extent
-        marker.scale.x = extent[0]
-        marker.scale.y = extent[1]
-        marker.scale.z = extent[2]
+        marker_box.scale.x = extent[0]
+        marker_box.scale.y = extent[1]
+        marker_box.scale.z = extent[2]
 
         # Цвет бокса
-        marker.color.r = 0.0
-        marker.color.g = 1.0
-        marker.color.b = 0.0
-        marker.color.a = 0.5  # Прозрачность
+        marker_box.color.r = 0.0
+        marker_box.color.g = 1.0
+        marker_box.color.b = 0.0
+        marker_box.color.a = 0.5  # Прозрачность
 
-        marker.lifetime = rclpy.duration.Duration(seconds=0.3).to_msg()  # Длительность отображения
+        marker_box.lifetime = rclpy.duration.Duration(seconds=0.3).to_msg()  # Длительность отображения
 
-        return marker
+        # Создаем текстовую подпись
+        marker_text = Marker()
+        marker_text.header.frame_id = "camera_optical_frame"
+        marker_text.header.stamp = self.get_clock().now().to_msg()
+        marker_text.ns = "text"
+        marker_text.id = id
+        marker_text.type = Marker.TEXT_VIEW_FACING
+        marker_text.action = Marker.ADD
+        marker_text.pose.position.x = marker_box.pose.position.x
+        marker_text.pose.position.y = marker_box.pose.position.y
+        marker_text.pose.position.z = marker_box.pose.position.z + marker_box.scale.z # Позиция текста над боксом
+        marker_text.scale.z = 0.1  # Размер текста
+        marker_text.color.r = 1.0
+        marker_text.color.g = 1.0
+        marker_text.color.b = 1.0
+        marker_text.color.a = 1.0  # Прозрачность текста
+        marker_text.text = "ID: " + str(id)  # Текст для отображения
+        marker_text.lifetime = rclpy.duration.Duration(seconds=0.3).to_msg()
+
+        return marker_box, marker_text
 
 def main(args=None):
     rclpy.init(args=args)

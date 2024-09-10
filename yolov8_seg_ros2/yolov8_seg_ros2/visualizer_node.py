@@ -37,7 +37,7 @@ class VisualizerNode(Node):
             self.get_parameter("queue_size").get_parameter_value().integer_value
         )
 
-        image_sub = message_filters.Subscriber(self, Image, "/camera/camera/color/image_raw")
+        image_sub = message_filters.Subscriber(self, Image, "/camera2/camera2/color/image_raw")
         segmentation_sub = message_filters.Subscriber(
             self, Objects, "/camera/camera/segmentation"
         )
@@ -62,7 +62,7 @@ class VisualizerNode(Node):
 
         segmentation_color = image.copy()
         masks = reconstruct_masks(segm_msg.masks)
-        draw_objects(segmentation_color, segm_msg.scores, segm_msg.classes_ids, masks=masks, draw_scores=True, draw_masks=True, palette=self.palette)
+        draw_objects(segmentation_color, segm_msg.scores, segm_msg.tracking_ids, masks=masks, draw_scores=True, draw_masks=True, draw_ids=True, palette=self.palette)
         
         segm_color_msg = self.br.cv2_to_imgmsg(segmentation_color, "bgr8")
         segm_color_msg.header = segm_msg.header

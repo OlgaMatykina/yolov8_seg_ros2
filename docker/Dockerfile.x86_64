@@ -18,7 +18,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install torch==2.3.1+cu121 torchvision==0.18.1+cu121 -f https://download.pytorch.org/whl/torch_stable.html
 
-
 # Install ROS2 Humble
 RUN apt-get update \
     && apt-get install -y curl gnupg2 lsb-release \
@@ -61,6 +60,15 @@ USER ${UID}:${GID}
 COPY entrypoint.sh /home/${USER}
 
 RUN python3 -m pip install open3d
+RUN python3 -m pip install tensorboard
+RUN python3 -m pip install tqdm
+RUN python3 -m pip install trimesh==3.12.7
+
+RUN python3 -m pip install torch-scatter -f https://pytorch-geometric.com/whl/torch-2.3.1+cu121.html
+RUN python3 -m pip install torch-sparse -f https://pytorch-geometric.com/whl/torch-2.3.1+cu121.html
+RUN python3 -m pip install torch-spline-conv -f https://pytorch-geometric.com/whl/torch-2.3.1+cu121.html
+RUN python3 -m pip install torch-geometric
+RUN python3 -m pip install git+https://github.com/openai/CLIP.git
 
 ENTRYPOINT ["bash", "/home/docker_semseg/entrypoint.sh"]
 

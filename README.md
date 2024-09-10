@@ -1,43 +1,78 @@
-Репозиторий содержит ROS2 (Humble) интерфейс для работы с YOLOv8 на Jetson (версия JetPack 5).
-Dockerfile.aarch64, предназначенный для сборки на Jetson, наследуется от образа [jetson-ros2-ultralytics:latest-humble](https://hub.docker.com/repository/docker/ritaakichik/jetson-ros2-ultralytics/general), исходные файлы для сборки которого доступны в папке docker/docker_humble.
-Dockerfile для сборки ROS2 Foxy также представлен в папке docker.
+Репозиторий содержит ROS2 (Humble) интерфейс для работы с YOLOv8 на x86_64
 
+!!!ВАЖНО Добавляйте веса всех моделей, никакие файлы .pth не залиты на github
 
-Представленные инструкции позволяют собрать 2 узла:
-- __yolov8_seg_node__, который слушает топик с изображениями и отправляет результаты сегментации в топик _segmentation_topic_ (формат определяется пакетом _yolov8_seg_interfaces_);
-- __visualizer_node__, который слушает топики _image_ и _segmentation_ и визуализирует результаты сегментации, отправляя изображения в _segmentation_color_topic_.
-
-На следующем изображении приведена диаграмма совместной работы узлов:
-![YOLOv8-ROS2-visual](media/ros2_yolov8_scheme.png)
-
-Тип _Objects_ - пользовательский, он определён в _yolov8_seg_interfaces_. Ниже приведена структура этого типа.
-![ROS2-Objects](media/ros_Objects.png)
-
-Пример визуализации __visualizer_node__ приведён ниже с расшифровкой цветовых кодов классов объектов.
-![ROS2-Objects](media/yolov8_vis.jpg)
-
-## Сборка образа
-```bash
+Сборка контейнера yolov8seg_track
+```
 cd docker
 sudo ./build.sh
 ./start.sh
 ./into.sh
 ```
 
-## Работа с пакетом
+(В РАЗРАБОТКЕ!!! НЕ ВЫПОЛНЯТЬ БЕЗ НЕОБХОДИМОСТИ) При входе в контейнер нужно настроить связь с роботом. Для этого выполнить команды:
+```
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+export CYCLONEDDS_URI=/home/docker_semseg/bags/cyclone_dds_conf.xml
+```
 
-Сборка пакета:
-```bash
+При первом входе в контейнер выполнить сборку рабочего пространства. Colcon находится в корневой директории  
+```
 cd /colcon_ws
 colcon build --packages-select yolov8_seg_ros2 yolov8_seg_interfaces --symlink-install
 source install/setup.bash
 ```
-В папку weights пакета _yolov8_seg_ros2_ необходимо положить веса, например из  [папки с весами, полученными на датасете с препятствиями](https://disk.yandex.ru/d/-3Nz15ePPFSZiQ).
 
-Запуск launch (необходимо специализировать namespace камеры, имя топика с изображениями и путь к весам модели):
-```bash
-ros2 launch src/yolov8_seg_ros2/launch/yolov8_seg_launch.py camera_ns:="/sensum/left/" image_topic:=image_raw weights:="src/yolov8_seg_ros2/weights/roboseg_S_5_cats.pt"
+При повторном входе в контейнер в новом терминале выполнить внутри контейнера
+```
+cd /colcon_ws
+source install/setup.bash
+```
+ 
+ 
+Росбэг запускается внутри контейнера через
+```
+ros2 bag play name_rosbag
+```
+(флаг  -loop для зацикливания)
+запуск нод через файл осуществляется
+```
+/colcon_ws/src/yolov8_seg_ros2/launch/start_nodes.bash 
 ```
 
+Целевой росбэг2 находится внутри контейнера /home/docker_semseg/bags/rosbag2_2024_09_05-21_47_22
+ 
 
-# ros2 launch src/yolov8_seg_ros2/launch/yolov8_seg_launch.py camera_ns:="/camera/camera/color/" image_topic:=image_raw/compressed
+Топики, публикуемые с робота:
+```
+administrator@zotac-vega:~$ ros2 topic list
+/camera1/camera1/color/camera_info
+/camera1/camera1/color/image_raw
+/camera1/camera1/color/image_raw/compressed
+/camera1/camera1/color/image_raw/compressedDepth
+/camera1/camera1/color/image_raw/theora
+/camera1/camera1/color/metadata
+/camera1/camera1/depth/camera_info
+/camera1/camera1/depth/image_rect_raw
+/camera1/camera1/depth/image_rect_raw/compressed
+/camera1/camera1/depth/image_rect_raw/compressedDepth
+/camera1/camera1/depth/image_rect_raw/theora
+/camera1/camera1/depth/metadata
+/camera1/camera1/extrinsics/depth_to_color
+/camera2/camera2/color/camera_info
+/camera2/camera2/color/image_raw
+/camera2/camera2/color/image_raw/compressed
+/camera2/camera2/color/image_raw/compressedDepth
+/camera2/camera2/color/image_raw/theora
+/camera2/camera2/color/metadata
+/camera2/camera2/depth/camera_info
+/camera2/camera2/depth/image_rect_raw
+/camera2/camera2/depth/image_rect_raw/compressed
+/camera2/camera2/depth/image_rect_raw/compressedDepth
+/camera2/camera2/depth/image_rect_raw/theora
+/camera2/camera2/depth/metadata
+/camera2/camera2/extrinsics/depth_to_color
+/parameter_events
+/rosout
+/tf_static
+```
