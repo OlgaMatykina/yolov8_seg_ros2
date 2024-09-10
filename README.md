@@ -19,7 +19,7 @@ export CYCLONEDDS_URI=/home/docker_semseg/bags/cyclone_dds_conf.xml
 При первом входе в контейнер выполнить сборку рабочего пространства. Colcon находится в корневой директории  
 ```
 cd /colcon_ws
-colcon build --packages-select yolov8_seg_ros2 yolov8_seg_interfaces --symlink-install
+colcon build --packages-select yolov8_seg_track_ros2 yolov8_seg_interfaces --symlink-install
 source install/setup.bash
 ```
 

@@ -33,7 +33,7 @@ docker run -it -d \
         --ipc=host \
         --pid=host \
         -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-        -v `pwd`/../yolov8_seg_ros2:/home/docker_semseg/colcon_ws/src/yolov8_seg_ros2:rw \
+        -v `pwd`/../yolov8_seg_track_ros2:/home/docker_semseg/colcon_ws/src/yolov8_seg_track_ros2:rw \
         -v `pwd`/../yolov8_seg_interfaces:/home/docker_semseg/colcon_ws/src/yolov8_seg_interfaces:rw \
         -v `pwd`/../bags:/home/docker_semseg/bags:rw \
         ${ARCH}_ros2/yolov8_seg_dds:latest

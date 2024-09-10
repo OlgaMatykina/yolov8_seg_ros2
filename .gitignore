@@ -16,4 +16,5 @@
 /yolov8_seg_ros2/yolov8_seg_ros2/camera_2023-06-30-08-58-37_2
 /bags/rosbag2*
 *.pth
+*.pt
 /yolov8_seg_ros2/yolov8_seg_ros2/vlsat/3dssg_best_ckpt/mmg_best.pth
