@@ -14,7 +14,7 @@ import torch
 
 from rclpy.node import Node
 from cv_bridge import CvBridge
-from sensor_msgs.msg import Image, Image
+from sensor_msgs.msg import Image, CompressedImage
 
 from ultralytics import YOLO
 
@@ -74,9 +74,9 @@ class YOLOv8SegNode(Node):
         self.aruco_dict = aruco.getPredefinedDictionary(cv2.aruco.DICT_ARUCO_ORIGINAL)
         self.aruco_params = aruco.DetectorParameters()
 
-    def on_image(self, image_msg: Image):
+    def on_image(self, image_msg: CompressedImage):
         # image = self.br.imgmsg_to_cv2(image_msg, desired_encoding="passthrough")
-        image = self.br.imgmsg_to_cv2(image_msg, desired_encoding="bgr8")
+        image = self.br.compressed_imgmsg_to_cv2(image_msg, desired_encoding="bgr8")
 
         segmentation_msg = self.process_img(image)
         segmentation_msg.header = image_msg.header

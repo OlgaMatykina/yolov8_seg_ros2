@@ -14,7 +14,7 @@ import open3d as o3d
 
 from rclpy.node import Node
 from cv_bridge import CvBridge
-from sensor_msgs.msg import Image, CameraInfo, PointCloud2
+from sensor_msgs.msg import Image, CompressedImage, CameraInfo, PointCloud2
 # from ros2_numpy.geometry import transform_to_numpy
 from ros2_numpy.point_cloud2 import array_to_pointcloud2, pointcloud2_to_array
 
@@ -50,7 +50,7 @@ class ObjectPointCloudExtractionNode(Node):
         self.br = CvBridge()
   
         depth_info_sub = message_filters.Subscriber(self, CameraInfo, "depth_info")
-        depth_sub = message_filters.Subscriber(self, Image, "depth") #надо добавить в launch remapping topics
+        depth_sub = message_filters.Subscriber(self, CompressedImage, "depth") #надо добавить в launch remapping topics
         objects_sub = message_filters.Subscriber(
             self, Objects, "segmentation"
         )
@@ -68,7 +68,7 @@ class ObjectPointCloudExtractionNode(Node):
             PointCloud2, "object_point_cloud_vis", self.queue_size)
 
 
-    def on_image(self, depth_info_msg: CameraInfo, depth_msg: Image, objects_msg: Objects, erosion_size=0, pool_size=2):
+    def on_image(self, depth_info_msg: CameraInfo, depth_msg: CompressedImage, objects_msg: Objects, erosion_size=0, pool_size=2):
 
         K = np.array(depth_info_msg.k).reshape(3, 3)
         D = np.array(depth_info_msg.d)
@@ -106,12 +106,12 @@ class ObjectPointCloudExtractionNode(Node):
             print("Publishing visualization point cloud.")
             self.visualization_pub.publish(self.merge_pointclouds(point_clouds))
 
-    def extract_point_cloud_ros(self, depth_msg, objects_msg, object_id):
+    def extract_point_cloud_ros(self, depth_msg: CompressedImage, objects_msg, object_id):
 
         # Убедитесь, что объект ID установлен корректно
         assert object_id >= 0
 
-        depth = self.br.imgmsg_to_cv2(depth_msg, desired_encoding="passthrough")
+        depth = self.br.compressed_imgmsg_to_cv2(depth_msg, desired_encoding="passthrough")
         scores, classes_ids, tracking_ids, _, masks_in_rois, rois, _, _ = from_objects_msg(objects_msg)
 
         print("Starting point cloud extraction...")

@@ -13,7 +13,7 @@ import message_filters
 
 from rclpy.node import Node
 from cv_bridge import CvBridge
-from sensor_msgs.msg import Image, Image
+from sensor_msgs.msg import Image, CompressedImage
 
 from yolov8_seg_interfaces.msg import Box, Mask, Objects
 
@@ -53,8 +53,8 @@ class VisualizerNode(Node):
 
         self.br = CvBridge()
 
-    def on_image_segmentation(self, image_msg: Image, segm_msg: Objects):
-        image = self.br.imgmsg_to_cv2(image_msg, desired_encoding="bgr8")
+    def on_image_segmentation(self, image_msg: CompressedImage, segm_msg: Objects):
+        image = self.br.compressed_imgmsg_to_cv2(image_msg, desired_encoding="bgr8")
 
         # segmentation_color = self.draw_masks(
         #     image, segm_msg.masks, segm_msg.classes_ids
