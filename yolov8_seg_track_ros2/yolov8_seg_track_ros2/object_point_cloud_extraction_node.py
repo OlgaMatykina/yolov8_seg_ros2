@@ -118,12 +118,12 @@ class ObjectPointCloudExtractionNode(Node):
 
         print("Starting point cloud extraction...")
         
-        # Добавим вывод размеров для отладки
-        for i, mask in enumerate(masks_in_rois):
-            print(f"Processing ROI {i}:")
-            print(f"  Depth shape: {depth.shape}")
-            print(f"  Mask shape: {mask.shape}")
-            print(f"  ROI shape: {rois[i]}")
+        # # Добавим вывод размеров для отладки
+        # for i, mask in enumerate(masks_in_rois):
+        #     print(f"Processing ROI {i}:")
+        #     print(f"  Depth shape: {depth.shape}")
+        #     print(f"  Mask shape: {mask.shape}")
+        #     print(f"  ROI shape: {rois[i]}")
 
         object_point_cloud, object_index = self.object_point_cloud_extractor.extract_point_cloud(depth,
                                                                     classes_ids, tracking_ids, masks_in_rois, rois, object_id)

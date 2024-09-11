@@ -15,7 +15,7 @@ from visualization_msgs.msg import Marker, MarkerArray
 from scipy.spatial.transform import Rotation as R
 from sklearn.cluster import DBSCAN
 
-def remove_noise_dbscan(pcd, eps=0.1, min_samples=100):
+def remove_noise_dbscan(pcd, eps=0.023, min_samples=100):
     # Преобразование облака точек в numpy массив
     points = np.asarray(pcd.points)
     
@@ -68,6 +68,14 @@ class BoundingBoxNode(Node):
         # Публикация для визуализации бокса в формате Marker
         self.bounding_box_marker_publisher = self.create_publisher(MarkerArray, 'bounding_box_markers', 5)
 
+
+        self.boxes = {
+            1013: (0.18, 0.26, 0.34),
+            999: (0.175, 0.425, 0.335),
+            990: (0.138, 0.2, 0.195),
+            313: (0.156, 0.327, 0.23)
+        }
+
     def listener_callback(self, msg: ObjectPointClouds):
         # Преобразуем ROS PointCloud2 в Open3D PointCloud
         self.get_logger().info('Received point cloud')
@@ -86,6 +94,8 @@ class BoundingBoxNode(Node):
             
             # Создаем минимальный ограничивающий бокс
             bounding_box = self.create_minimal_oriented_bounding_box(point_cloud_o3d)
+
+            bounding_box = self.fix_box_sizes(bounding_box, object.tracking_id)
 
             
             marker_box, marker_text = self.create_bounding_box_marker(bounding_box, object.tracking_id)
@@ -179,6 +189,55 @@ class BoundingBoxNode(Node):
     #     bbox_msg.box_size = [bbox_size[0], bbox_size[1], bbox_size[2]]
 
     #     return bbox_msg
+
+    def fix_box_sizes(self, bounding_box, tracking_id, tolerance=0.5):
+
+        def is_close(a,b, tol):
+            return abs(a-b)<=tol
+        
+        def find_closest_dimension(known_dim, box_dims, used_dims, tol):
+            for dim in box_dims:
+                if is_close(dim, known_dim, tol) and dim not in used_dims:
+                    return dim
+            return None
+        
+        x = bounding_box.extent[0]
+        y = bounding_box.extent[1]
+
+        known_sides = [x,y]
+
+        box_dims = self.boxes[tracking_id]
+
+        # Список использованных измерений
+        used_dims = []
+
+        # Сопоставляем каждую известную сторону с измерениями из базы
+        matched_sides = []
+        for known_dim in known_sides:
+            matched_dim = find_closest_dimension(known_dim, box_dims, used_dims, tolerance)
+            if matched_dim is not None:
+                matched_sides.append(matched_dim)
+                used_dims.append(matched_dim)
+
+        # Оставшееся измерение — это третья сторона (глубина)
+        third_dimension = [dim for dim in box_dims if dim not in used_dims]
+
+        print('THIRD_DIM', third_dimension)
+
+        z = third_dimension[0] if third_dimension else None
+
+        current_center = bounding_box.center
+
+        depth_direction = abs(bounding_box.R[:,2])  #в реальности ось всегда направлена от камеры, в o3d ось скачет
+
+        center_offset = (z - bounding_box.extent[2]) / 2 * depth_direction
+
+        new_center = current_center + center_offset
+        new_extent = bounding_box.extent.copy()
+        new_extent[2] = z
+        fixed_bbox = o3d.geometry.OrientedBoundingBox(new_center, bounding_box.R, new_extent)
+
+        return fixed_bbox
     
     def create_bounding_box_marker(self, bounding_box, id):
         # Создаем Marker для визуализации ограничивающего бокса в RViz
