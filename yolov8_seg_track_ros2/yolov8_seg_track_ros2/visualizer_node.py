@@ -37,7 +37,7 @@ class VisualizerNode(Node):
             self.get_parameter("queue_size").get_parameter_value().integer_value
         )
 
-        image_sub = message_filters.Subscriber(self, Image, "image")
+        image_sub = message_filters.Subscriber(self, CompressedImage, "image")
         segmentation_sub = message_filters.Subscriber(
             self, Objects, "segmentation"
         )

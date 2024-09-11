@@ -17,6 +17,7 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import Image, CompressedImage, CameraInfo, PointCloud2
 # from ros2_numpy.geometry import transform_to_numpy
 from ros2_numpy.point_cloud2 import array_to_pointcloud2, pointcloud2_to_array
+from yolov8_seg_track_ros2 import  image_tools
 
 from yolov8_seg_interfaces.msg import Objects, ObjectPointCloud, ObjectPointClouds
 
@@ -111,7 +112,8 @@ class ObjectPointCloudExtractionNode(Node):
         # Убедитесь, что объект ID установлен корректно
         assert object_id >= 0
 
-        depth = self.br.compressed_imgmsg_to_cv2(depth_msg, desired_encoding="passthrough")
+        # depth = self.br.compressed_imgmsg_to_cv2(depth_msg, desired_encoding="passthrough")
+        depth = image_tools.it.convert_compressedDepth_to_cv2(depth_msg)
         scores, classes_ids, tracking_ids, _, masks_in_rois, rois, _, _ = from_objects_msg(objects_msg)
 
         print("Starting point cloud extraction...")

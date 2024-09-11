@@ -14,7 +14,7 @@ def generate_launch_description():
                 default_value="/home/docker_semseg/colcon_ws/src/yolov8_seg_track_ros2/weights/box_container_M.pt",
             ),
             launch.actions.DeclareLaunchArgument("confidence", default_value="0.5"),
-            launch.actions.DeclareLaunchArgument("frame_id", default_value="camera_color_frame"),
+            launch.actions.DeclareLaunchArgument("frame_id", default_value="camera2_color_optical_frame"),
             launch.actions.DeclareLaunchArgument("treshold", default_value="0.5"),
             # Topics
             launch.actions.DeclareLaunchArgument("queue_size", default_value="5"),
@@ -32,10 +32,10 @@ def generate_launch_description():
             launch.actions.DeclareLaunchArgument("3d_box", default_value = "1"
             ),
             launch.actions.DeclareLaunchArgument(
-                "camera_ns", default_value="/camera/camera/"
+                "camera_ns", default_value="/camera2/camera2/"
             ),
             launch.actions.DeclareLaunchArgument(
-                "image_topic", default_value="color/image_raw"
+                "image_topic", default_value="color/image_raw/compressed"
             ),
             launch.actions.DeclareLaunchArgument(
                 "segmentation_topic", default_value="/segmentation"
@@ -47,7 +47,7 @@ def generate_launch_description():
                 "depth_info_topic", default_value="aligned_depth_to_color/camera_info"
             ),
             launch.actions.DeclareLaunchArgument(
-                "depth_topic", default_value="aligned_depth_to_color/image_raw"
+                "depth_topic", default_value="aligned_depth_to_color/image_raw/compressedDepth"
             ),
             launch.actions.DeclareLaunchArgument(
                 "object_point_cloud_topic", default_value="/object_point_cloud"

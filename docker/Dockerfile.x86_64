@@ -26,6 +26,9 @@ RUN apt-get update \
     && apt-get update \
     && apt-get install -y \
         ros-humble-ros-base \
+        ros-humble-rviz2 \
+        ros-humble-rqt \
+        ros-humble-image-transport-plugins \
         python3-colcon-common-extensions \
         ros-humble-cv-bridge \
         ros-humble-rmw-cyclonedds-cpp \
@@ -57,8 +60,6 @@ WORKDIR /home/${USER}
 RUN mkdir -p colcon_ws/src && chown -R ${UID}:${GID} /home/${USER}
 USER ${UID}:${GID}
 
-COPY entrypoint.sh /home/${USER}
-
 RUN python3 -m pip install open3d
 RUN python3 -m pip install tensorboard
 RUN python3 -m pip install tqdm
@@ -70,5 +71,11 @@ RUN python3 -m pip install torch-spline-conv -f https://pytorch-geometric.com/wh
 RUN python3 -m pip install torch-geometric
 RUN python3 -m pip install git+https://github.com/openai/CLIP.git
 
-ENTRYPOINT ["bash", "/home/docker_semseg/entrypoint.sh"]
+RUN mkdir -p .dds/log && chown -R ${UID}:${GID} /home/${USER}
 
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ENV CYCLONEDDS_URI="file:///home/${USER}/bags/cyclonedds_conf.xml"
+
+COPY entrypoint.sh /home/${USER}
+
+ENTRYPOINT ["bash", "/home/docker_semseg/entrypoint.sh"]

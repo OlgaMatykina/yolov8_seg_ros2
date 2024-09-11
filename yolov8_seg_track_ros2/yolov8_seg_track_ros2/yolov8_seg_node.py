@@ -62,7 +62,7 @@ class YOLOv8SegNode(Node):
 
         self.sub_image = self.create_subscription(
             # Image, "image", self.on_image, self.queue_size
-            Image, "image", self.on_image, self.queue_size
+            CompressedImage, "image", self.on_image, self.queue_size
 
         )
         self.pub_segmentation = self.create_publisher(
@@ -174,8 +174,8 @@ class YOLOv8SegNode(Node):
                         conf.pop(i)
                         classes.pop(i)
                         boxes.pop(i)
-                        masks_in_rois.pop(i)
-                        rois.pop(i)
+                        np.delete(masks_in_rois, i, axis=0)
+                        np.delete(rois, i, axis=0)
 
 
 
