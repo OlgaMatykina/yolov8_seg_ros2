@@ -57,6 +57,7 @@ def rotate_box_sizes(box_size, box_pose):
 
     return [x_new, y_new, z_new]
 
+
 # def remove_noise_morphological(pcd, voxel_size=0.05, nb_neighbors=20, std_ratio=2.0):
 #     # Применение фильтра сглаживания
 #     pcd = pcd.voxel_down_sample(voxel_size)  # Уменьшение разрешения
@@ -151,7 +152,7 @@ class BoundingBoxNode(Node):
             if object.tracking_id not in self.boxes.keys():
                 continue
 
-            # init_pose = self.init_pose(object.point_cloud, object.tracking_id)
+            self.initial_pose = self.init_pose(object.point_cloud, object.tracking_id)
             
             bbox_msg, _, object_pose = self.estimate_pose_ros(object, self.prev_service)
 
@@ -203,7 +204,7 @@ class BoundingBoxNode(Node):
         if point_cloud_o3d.is_empty():
             return None
 
-        point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d)
+        point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d, 0.5)
 
         if point_cloud_o3d.is_empty():
             return None
@@ -211,7 +212,7 @@ class BoundingBoxNode(Node):
         #Создаем минимальный ограничивающий бокс
         bounding_box = self.create_minimal_oriented_bounding_box(point_cloud_o3d)
 
-        bounding_box = self.fix_box_sizes(bounding_box, tracking_id)
+        # bounding_box = self.fix_box_sizes(bounding_box, tracking_id)
 
         # Позиция и ориентация
         pose = Pose()
@@ -229,7 +230,7 @@ class BoundingBoxNode(Node):
         pose.orientation.w = quat[3]
 
 
-        return pose_to_matrix
+        return pose_to_matrix(pose)
 
     # def create_bounding_box_msg(self, bounding_box):
     #     # Создаем сообщение BoundingBox
@@ -380,7 +381,7 @@ class BoundingBoxNode(Node):
             return None, object_pose_estimator, None
         
         # print(open3d_to_pointcloud2(object_pose_estimator.gt_pc))
-        pc = open3d_to_pointcloud2(object_pose_estimator.gt_pc)
+        pc = open3d_to_pointcloud2(object_pose_estimator.gt_pc) #.transform(self.initial_pose))
         pc.header.frame_id = self.frame_id
         
         self.model_publisher.publish(pc)
