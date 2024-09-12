@@ -3,6 +3,8 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+from pointcloud_converter import remove_noise_dbscan
+
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import PointCloud2
@@ -15,23 +17,8 @@ from visualization_msgs.msg import Marker, MarkerArray
 from scipy.spatial.transform import Rotation as R
 from sklearn.cluster import DBSCAN
 
-def remove_noise_dbscan(pcd, eps=0.023, min_samples=100):
-    # Преобразование облака точек в numpy массив
-    points = np.asarray(pcd.points)
-    
-    # Применение DBSCAN
-    db = DBSCAN(eps=eps, min_samples=min_samples).fit(points)
-    labels = db.labels_
-    
-    # Фильтрация точек, не входящих в кластер (т.е. шум)
-    mask = labels != -1
-    filtered_points = points[mask]
-    
-    # Создание нового облака точек без шума
-    filtered_pcd = o3d.geometry.PointCloud()
-    filtered_pcd.points = o3d.utility.Vector3dVector(filtered_points)
-    
-    return filtered_pcd
+from pointcloud_converter import pointcloud2_to_open3d
+
 
 # def remove_noise_morphological(pcd, voxel_size=0.05, nb_neighbors=20, std_ratio=2.0):
 #     # Применение фильтра сглаживания
@@ -88,14 +75,14 @@ class BoundingBoxNode(Node):
 
         for object in msg.point_clouds:
 
-            point_cloud_o3d = self.pointcloud2_to_open3d(object.point_cloud)
+            point_cloud_o3d = pointcloud2_to_open3d(object.point_cloud)
 
-            point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d)
+            point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d, 0.5)
             
             # Создаем минимальный ограничивающий бокс
             bounding_box = self.create_minimal_oriented_bounding_box(point_cloud_o3d)
 
-            bounding_box = self.fix_box_sizes(bounding_box, object.tracking_id)
+            # bounding_box = self.fix_box_sizes(bounding_box, object.tracking_id)
 
             
             marker_box, marker_text = self.create_bounding_box_marker(bounding_box, object.tracking_id)

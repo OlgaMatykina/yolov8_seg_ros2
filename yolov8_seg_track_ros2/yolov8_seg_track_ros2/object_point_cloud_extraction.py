@@ -11,13 +11,13 @@ class ObjectPointCloudExtraction:
         self.D = D
         self.erosion_size = erosion_size
         self.pool_size = pool_size
-        print("step1_pointextract")
+        # print("step1_pointextract")
 
         if self.erosion_size > 0:
             self.erosion_element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,
                 (2 * self.erosion_size + 1, 2 * self.erosion_size + 1),
                 (self.erosion_size, self.erosion_size))
-            print("step2_pointextract")
+            # print("step2_pointextract")
 
         # camera intrinsics will be set later to correspond to mask roi
         self.depth_to_point_cloud = DepthToPointCloud(0, 0, 0, 0, self.pool_size)
@@ -62,7 +62,7 @@ class ObjectPointCloudExtraction:
         if not depth_in_roi.flags.writeable:
             depth_in_roi = depth_in_roi.copy()
         depth_in_roi[mask_in_roi == 0] = 0
-        print("step3_pointextract")
+        # print("step3_pointextract")
 
         fx = self.K[0, 0]
         fy = self.K[1, 1]
@@ -71,7 +71,7 @@ class ObjectPointCloudExtraction:
         self.depth_to_point_cloud.set_camera_intrinsics(
             fx, fy, cx - roi[1].start, cy - roi[0].start)
         object_point_cloud = self.depth_to_point_cloud.convert(depth_in_roi)
-        print("step4pointextract")
+        # print("step4pointextract")
         assert object_point_cloud.dtype == np.float32
 
         return object_point_cloud, object_index

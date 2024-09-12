@@ -5,6 +5,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from conversions import from_objects_msg
 
+from pointcloud_converter import pointcloud2_to_open3d, open3d_to_pointcloud2, remove_noise_dbscan
 
 import rclpy
 import numpy as np
@@ -73,7 +74,7 @@ class ObjectPointCloudExtractionNode(Node):
 
         K = np.array(depth_info_msg.k).reshape(3, 3)
         D = np.array(depth_info_msg.d)
-        print(f"depth_msg from extraction : {K}")      
+        # print(f"depth_msg from extraction : {K}")      
         self.object_point_cloud_extractor = ObjectPointCloudExtraction(K, D, erosion_size=erosion_size, pool_size=pool_size)
 
         _, _, tracking_ids, _, _, _, _, _ = from_objects_msg(objects_msg)
@@ -90,7 +91,17 @@ class ObjectPointCloudExtractionNode(Node):
             
             object_point_clouds_msg.point_clouds.append(object_point_cloud_msg)
 
-            point_clouds.append(object_point_cloud_msg.point_cloud)
+            point_cloud_o3d = pointcloud2_to_open3d(object_point_cloud_msg.point_cloud)
+
+            if point_cloud_o3d.is_empty():
+                continue
+
+            point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d, 0.5)
+
+            point_cloud = open3d_to_pointcloud2(point_cloud_o3d)
+
+            # point_clouds.append(object_point_cloud_msg.point_cloud)
+            point_clouds.append(point_cloud)
 
 
             # if object_point_cloud_msg is not None:
@@ -100,11 +111,11 @@ class ObjectPointCloudExtractionNode(Node):
             #     print("Publishing visualization point cloud.")
             #     self.visualization_pub.publish(object_point_cloud_msg.point_cloud)
         if len(object_point_clouds_msg.point_clouds)>0:
-            print("Publishing object point clouds.")
+            # print("Publishing object point clouds.")
             object_point_clouds_msg.header = depth_msg.header
             self.object_point_cloud_pub.publish(object_point_clouds_msg)
 
-            print("Publishing visualization point cloud.")
+            # print("Publishing visualization point cloud.")
             self.visualization_pub.publish(self.merge_pointclouds(point_clouds))
 
     def extract_point_cloud_ros(self, depth_msg: CompressedImage, objects_msg, object_id):
@@ -116,7 +127,7 @@ class ObjectPointCloudExtractionNode(Node):
         depth = image_tools.it.convert_compressedDepth_to_cv2(depth_msg)
         scores, classes_ids, tracking_ids, _, masks_in_rois, rois, _, _ = from_objects_msg(objects_msg)
 
-        print("Starting point cloud extraction...")
+        # print("Starting point cloud extraction...")
         
         # # Добавим вывод размеров для отладки
         # for i, mask in enumerate(masks_in_rois):
@@ -127,7 +138,7 @@ class ObjectPointCloudExtractionNode(Node):
 
         object_point_cloud, object_index = self.object_point_cloud_extractor.extract_point_cloud(depth,
                                                                     classes_ids, tracking_ids, masks_in_rois, rois, object_id)
-        print("Point cloud extraction completed.")
+        # print("Point cloud extraction completed.")
         
         if object_point_cloud is None:
             return None

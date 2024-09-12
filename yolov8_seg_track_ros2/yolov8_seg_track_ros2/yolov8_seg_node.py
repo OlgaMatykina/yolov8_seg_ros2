@@ -150,7 +150,7 @@ class YOLOv8SegNode(Node):
 
         # tracking_ids = np.array(range(len(conf)))
 
-        print('MARKSER_IDS', marker_ids)
+        # print('MARKSER_IDS', marker_ids)
 
         unique_ids = set(marker_ids)
     

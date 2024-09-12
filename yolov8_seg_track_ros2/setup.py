@@ -25,6 +25,7 @@ setup(
             'object_point_cloud_extraction_node = yolov8_seg_track_ros2.object_point_cloud_extraction_node:main',
             'bounding_box_node = yolov8_seg_track_ros2.bounding_box_node:main',
             'vlsat_node = yolov8_seg_track_ros2.vlsat_node:main',
+            'associate_node = yolov8_seg_track_ros2.associate_node:main',
         ],
     },
 )

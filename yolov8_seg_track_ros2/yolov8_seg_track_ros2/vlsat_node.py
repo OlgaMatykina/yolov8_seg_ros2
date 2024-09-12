@@ -108,7 +108,7 @@ class VLSAT_Node(Node):
                     grid_pc = np.stack((xv.flatten(), yv.flatten(), zv.flatten()), axis=1)
                     pcds[track_id][timestamps[i]]['point_cloud'] = grid_pc
                     point_clouds.append(grid_pc)
-        print("Loaded the following saved pointclouds:")
+        # print("Loaded the following saved pointclouds:")
         #for obj_id, obj_pcds in pcds.items():
         #    for timecode in obj_pcds:
         #        print(obj_id, "at time", timecode, "with position ", obj_pcds[timecode]['position'], "point cloud shape", obj_pcds[timecode]['point_cloud'].shape)
@@ -130,7 +130,7 @@ class VLSAT_Node(Node):
             topk_values, topk_indices = torch.topk(predicted_relations, 5, dim=1,  largest=True)
             #print(topk_indices, topk_values)
             saved_relations = self.edge_predictor.save_relations(tracking_ids, timestamps, classes_ids, predicted_relations, edge_indices)
-            print("Predicted the following relations:")
+            # print("Predicted the following relations:")
             saved_relations_msg = Relationlist()
             
             saved_relations_msg.relations = []

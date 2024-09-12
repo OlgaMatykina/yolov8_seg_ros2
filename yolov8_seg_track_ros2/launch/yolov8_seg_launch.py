@@ -64,6 +64,9 @@ def generate_launch_description():
             launch.actions.DeclareLaunchArgument(
                 "graph_topic", default_value="/graph"
             ),
+            launch.actions.DeclareLaunchArgument(
+                "segmentation_filtered_topic", default_value="/segmentation_filtered"
+            ),
 
             # Nodes
             launch_ros.actions.Node(
@@ -97,13 +100,32 @@ def generate_launch_description():
             launch_ros.actions.Node(
                 package="yolov8_seg_track_ros2",
                 namespace=launch.substitutions.LaunchConfiguration("camera_ns"),
+                executable="associate_node",
+                name="associate_node",
+                remappings=[
+                    (
+                        "segmentation",
+                        launch.substitutions.LaunchConfiguration("segmentation_topic"),
+                    ),
+                    (
+                        "segmentation_filtered",
+                        launch.substitutions.LaunchConfiguration(
+                            "segmentation_filtered_topic"
+                        ),
+                    ),
+                ],
+                output="screen",
+            ),
+            launch_ros.actions.Node(
+                package="yolov8_seg_track_ros2",
+                namespace=launch.substitutions.LaunchConfiguration("camera_ns"),
                 executable="visualizer_node",
                 name="visualizer_node",
                 remappings=[
                     ("image", launch.substitutions.LaunchConfiguration("image_topic")),
                     (
                         "segmentation",
-                        launch.substitutions.LaunchConfiguration("segmentation_topic"),
+                        launch.substitutions.LaunchConfiguration("segmentation_filtered_topic"),
                     ),
                     (
                         "segmentation_color",
@@ -124,7 +146,7 @@ def generate_launch_description():
                     ("depth", launch.substitutions.LaunchConfiguration("depth_topic")),
                     (
                         "segmentation",
-                        launch.substitutions.LaunchConfiguration("segmentation_topic"),
+                        launch.substitutions.LaunchConfiguration("segmentation_filtered_topic"),
                     ),
                     (
                         "object_point_cloud",
