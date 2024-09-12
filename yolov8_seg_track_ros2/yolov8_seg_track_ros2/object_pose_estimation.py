@@ -6,7 +6,7 @@ import open3d as o3d
 class ObjectPoseEstimation:
     def __init__(self, gt_point_cloud, voxel_size,
             max_correspondence_distances,
-            fitness_threshold=0.7):
+            fitness_threshold=0.0):
         self.voxel_size = voxel_size
         self.max_correspondence_distances = max_correspondence_distances
         self.fitness_threshold = fitness_threshold

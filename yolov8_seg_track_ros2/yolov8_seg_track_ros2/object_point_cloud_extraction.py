@@ -41,7 +41,9 @@ class ObjectPointCloudExtraction:
             if len(object_indices) == 0:
                 self.reason = f"Cloud not find object with tracking id {object_id}"
                 return None, None
-            object_index = object_indices.item()
+            # object_index = object_indices.item()
+            object_index = object_indices[0]
+
         else:
             object_indices = np.where(classes_ids == object_id)[0]
             if len(object_indices) > 1:
