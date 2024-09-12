@@ -52,6 +52,10 @@ class AssociateNode(Node):
             #print (self.past_box_msg )
             pred_tracking_ids = objects_msg.tracking_ids
             past_tracking_ids = self.past_box_msg.tracking_ids
+
+            if len(pred_tracking_ids)==0:
+                return
+
             # print ("BEFORE",pred_tracking_ids)
             pred_masks_msg = objects_msg.masks
             past_masks_msg = self.past_box_msg.masks
@@ -67,6 +71,8 @@ class AssociateNode(Node):
                         ious = {}
                         for j, obj in enumerate(past_tracking_ids):
                             ious[obj] = self.iou(pred_masks[i], past_masks[j])
+                        if len(ious)==0:
+                            continue
                         max_iou = max(ious, key=ious.get)
                         pred_tracking_ids[pred_tracking_ids.index(item)] = int(max_iou)
 

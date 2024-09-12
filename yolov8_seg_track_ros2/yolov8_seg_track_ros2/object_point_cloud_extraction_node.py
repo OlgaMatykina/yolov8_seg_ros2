@@ -96,12 +96,12 @@ class ObjectPointCloudExtractionNode(Node):
             if point_cloud_o3d.is_empty():
                 continue
 
-            point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d, 0.5)
+            # point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d, 0.5)
 
-            point_cloud = open3d_to_pointcloud2(point_cloud_o3d)
+            # point_cloud = open3d_to_pointcloud2(point_cloud_o3d)
 
-            # point_clouds.append(object_point_cloud_msg.point_cloud)
-            point_clouds.append(point_cloud)
+            point_clouds.append(object_point_cloud_msg.point_cloud)
+            # point_clouds.append(point_cloud)
 
 
             # if object_point_cloud_msg is not None:
