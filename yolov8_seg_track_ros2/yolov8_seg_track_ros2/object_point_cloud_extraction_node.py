@@ -29,7 +29,7 @@ class ObjectPointCloudExtractionNode(Node):
     def __init__(self,) -> None:
         super().__init__("object_point_cloud_extraction_node")
 
-        self.declare_parameter("frame_id", "camera_optical_frame")
+        self.declare_parameter("frame_id", "camera2_color_optical_frame")
         self.frame_id = (
             self.get_parameter("frame_id").get_parameter_value().string_value
         )
@@ -91,17 +91,17 @@ class ObjectPointCloudExtractionNode(Node):
             
             object_point_clouds_msg.point_clouds.append(object_point_cloud_msg)
 
-            point_cloud_o3d = pointcloud2_to_open3d(object_point_cloud_msg.point_cloud)
+            # point_cloud_o3d = pointcloud2_to_open3d(object_point_cloud_msg.point_cloud)
 
-            if point_cloud_o3d.is_empty():
-                continue
+            # if point_cloud_o3d.is_empty():
+            #     continue
 
-            # point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d, 0.5)
+            # # point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d, 0.3)
 
             # point_cloud = open3d_to_pointcloud2(point_cloud_o3d)
 
+            # point_clouds.append(object_point_cloud_msg.point_cloud)
             point_clouds.append(object_point_cloud_msg.point_cloud)
-            # point_clouds.append(point_cloud)
 
 
             # if object_point_cloud_msg is not None:
