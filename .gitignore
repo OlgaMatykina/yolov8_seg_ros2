@@ -1,4 +1,3 @@
-/__pycache__
 .vscode
 /docker/context
 /docker/into_noetic_foxy.sh
@@ -18,3 +17,4 @@
 *.pth
 *.pt
 /yolov8_seg_ros2/yolov8_seg_ros2/vlsat/3dssg_best_ckpt/mmg_best.pth
+*.pyc
