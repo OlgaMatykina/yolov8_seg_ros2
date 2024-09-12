@@ -170,38 +170,38 @@ def generate_launch_description():
                 ],
                 output="screen",
             ),
-            # launch_ros.actions.Node(
-            #     package="yolov8_seg_track_ros2",
-            #     namespace=launch.substitutions.LaunchConfiguration("camera_ns"),
-            #     executable="bounding_box_node",
-            #     name="bounding_box_node",
-            #     remappings=[
-            #         (
-            #             "object_point_cloud",
-            #             launch.substitutions.LaunchConfiguration("object_point_cloud_topic"),
-            #         ),
-            #         (
-            #             "seg_track",
-            #             launch.substitutions.LaunchConfiguration("seg_track_topic"),
-            #         ),
-            #         (
-            #             "bounding_box_markers",
-            #             launch.substitutions.LaunchConfiguration("bounding_box_markers_topic"),
-            #         ),
+            launch_ros.actions.Node(
+                package="yolov8_seg_track_ros2",
+                namespace=launch.substitutions.LaunchConfiguration("camera_ns"),
+                executable="bounding_box_node",
+                name="bounding_box_node",
+                remappings=[
+                    (
+                        "object_point_cloud",
+                        launch.substitutions.LaunchConfiguration("object_point_cloud_topic"),
+                    ),
+                    (
+                        "seg_track",
+                        launch.substitutions.LaunchConfiguration("seg_track_topic"),
+                    ),
+                    (
+                        "bounding_box_markers",
+                        launch.substitutions.LaunchConfiguration("bounding_box_markers_topic"),
+                    ),
                     
-            #     ],
-            #     parameters=[
-            #         {
-            #             "queue_size": launch.substitutions.LaunchConfiguration(
-            #                 "queue_size"
-            #             ),
-            #             "frame_id": launch.substitutions.LaunchConfiguration(
-            #                 "frame_id"
-            #             ),
-            #         }
-            #     ],
-            #     output="screen",
-            # ),
+                ],
+                parameters=[
+                    {
+                        "queue_size": launch.substitutions.LaunchConfiguration(
+                            "queue_size"
+                        ),
+                        "frame_id": launch.substitutions.LaunchConfiguration(
+                            "frame_id"
+                        ),
+                    }
+                ],
+                output="screen",
+            ),
             launch_ros.actions.Node(
                 package="yolov8_seg_track_ros2",
                 namespace=launch.substitutions.LaunchConfiguration("camera_ns"),
