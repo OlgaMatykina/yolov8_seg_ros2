@@ -17,7 +17,7 @@ from geometry_msgs.msg import Pose
 from visualization_msgs.msg import Marker, MarkerArray
 from scipy.spatial.transform import Rotation as R
 
-from pointcloud_converter import pointcloud2_to_open3d
+from pointcloud_converter import pointcloud2_to_open3d, open3d_to_pointcloud2
 from object_pose_estimation import ObjectPoseEstimation, get_box_point_cloud, align_poses, align_poses_90
 
 def pose_to_matrix(pose: Pose):
@@ -99,6 +99,9 @@ class BoundingBoxNode(Node):
         # Публикация для визуализации бокса в формате Marker
         self.bounding_box_marker_publisher = self.create_publisher(MarkerArray, 'bounding_box_markers', 5)
 
+        # Публикация облака точек модели для отладки
+        self.model_publisher = self.create_publisher(PointCloud2, 'dev', 5)
+
 
         self.boxes = {
             1013: (0.18, 0.26, 0.34),
@@ -113,8 +116,8 @@ class BoundingBoxNode(Node):
         for i in self.boxes.keys():
 
             self.object_pose_estimators[i] = ObjectPoseEstimation(
-                get_box_point_cloud(self.boxes[i], points_per_cm=7),
-                voxel_size=0.005,
+                get_box_point_cloud(self.boxes[i], points_per_cm=5),
+                voxel_size=0.02,
                 max_correspondence_distances=[0.04, 0.029, 0.018, 0.007])
             # max_correspondence_distances=[0.04])
 
@@ -375,6 +378,15 @@ class BoundingBoxNode(Node):
         if object_pose_estimator is None:
             print("FAIL")
             return None, object_pose_estimator, None
+        
+        # print(open3d_to_pointcloud2(object_pose_estimator.gt_pc))
+        pc = open3d_to_pointcloud2(object_pose_estimator.gt_pc)
+        pc.header.frame_id = self.frame_id
+        
+        self.model_publisher.publish(pc)
+        print('Publish model point cloud')
+        
+
 
         point_cloud = pointcloud2_to_xyz_array(object_point_cloud_msg.point_cloud)
 

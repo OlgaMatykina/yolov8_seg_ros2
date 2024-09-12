@@ -29,7 +29,7 @@ class ObjectPointCloudExtractionNode(Node):
     def __init__(self,) -> None:
         super().__init__("object_point_cloud_extraction_node")
 
-        self.declare_parameter("frame_id", "camera_optical_frame")
+        self.declare_parameter("frame_id", "camera2_color_optical_frame")
         self.frame_id = (
             self.get_parameter("frame_id").get_parameter_value().string_value
         )
@@ -51,10 +51,10 @@ class ObjectPointCloudExtractionNode(Node):
 
         self.br = CvBridge()
   
-        depth_info_sub = message_filters.Subscriber(self, CameraInfo, "depth_info")
-        depth_sub = message_filters.Subscriber(self, CompressedImage, "depth") #надо добавить в launch remapping topics
+        depth_info_sub = message_filters.Subscriber(self, CameraInfo, "/camera2/camera2/aligned_depth_to_color/camera_info")
+        depth_sub = message_filters.Subscriber(self, CompressedImage, "/camera2/camera2/aligned_depth_to_color/image_raw/compressedDepth") #надо добавить в launch remapping topics
         objects_sub = message_filters.Subscriber(
-            self, Objects, "segmentation"
+            self, Objects, "/segmentation_filtered"
         )
 
         self.ts = message_filters.ApproximateTimeSynchronizer(
@@ -96,7 +96,7 @@ class ObjectPointCloudExtractionNode(Node):
             if point_cloud_o3d.is_empty():
                 continue
 
-            point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d, 0.5)
+            point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d, 0.3)
 
             point_cloud = open3d_to_pointcloud2(point_cloud_o3d)
 
