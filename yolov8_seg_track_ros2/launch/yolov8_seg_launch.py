@@ -97,25 +97,25 @@ def generate_launch_description():
                 ],
                 output="screen",
             ),
-            # launch_ros.actions.Node(
-            #     package="yolov8_seg_track_ros2",
-            #     namespace=launch.substitutions.LaunchConfiguration("camera_ns"),
-            #     executable="associate_node",
-            #     name="associate_node",
-            #     remappings=[
-            #         (
-            #             "segmentation",
-            #             launch.substitutions.LaunchConfiguration("segmentation_topic"),
-            #         ),
-            #         (
-            #             "segmentation_filtered",
-            #             launch.substitutions.LaunchConfiguration(
-            #                 "segmentation_filtered_topic"
-            #             ),
-            #         ),
-            #     ],
-            #     output="screen",
-            # ),
+            launch_ros.actions.Node(
+                package="yolov8_seg_track_ros2",
+                namespace=launch.substitutions.LaunchConfiguration("camera_ns"),
+                executable="associate_node",
+                name="associate_node",
+                remappings=[
+                    (
+                        "segmentation",
+                        launch.substitutions.LaunchConfiguration("segmentation_topic"),
+                    ),
+                    (
+                        "segmentation_filtered",
+                        launch.substitutions.LaunchConfiguration(
+                            "segmentation_filtered_topic"
+                        ),
+                    ),
+                ],
+                output="screen",
+            ),
             launch_ros.actions.Node(
                 package="yolov8_seg_track_ros2",
                 namespace=launch.substitutions.LaunchConfiguration("camera_ns"),
@@ -125,7 +125,7 @@ def generate_launch_description():
                     ("image", launch.substitutions.LaunchConfiguration("image_topic")),
                     (
                         "segmentation",
-                        launch.substitutions.LaunchConfiguration("segmentation_topic"),
+                        launch.substitutions.LaunchConfiguration("segmentation_filtered_topic"),
                     ),
                     (
                         "segmentation_color",
@@ -146,7 +146,7 @@ def generate_launch_description():
                     ("depth", launch.substitutions.LaunchConfiguration("depth_topic")),
                     (
                         "segmentation",
-                        launch.substitutions.LaunchConfiguration("segmentation_topic"),
+                        launch.substitutions.LaunchConfiguration("segmentation_filtered_topic"),
                     ),
                     (
                         "object_point_cloud",

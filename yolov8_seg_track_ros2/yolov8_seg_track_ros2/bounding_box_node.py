@@ -341,7 +341,7 @@ class BoundingBoxNode(Node):
         marker_box.color.b = 0.0
         marker_box.color.a = 0.5  # Прозрачность
 
-        marker_box.lifetime = rclpy.duration.Duration(seconds=1).to_msg()  # Длительность отображения
+        marker_box.lifetime = rclpy.duration.Duration(seconds=1.5).to_msg()  # Длительность отображения
 
         # Создаем текстовую подпись
         marker_text = Marker()
@@ -360,7 +360,7 @@ class BoundingBoxNode(Node):
         marker_text.color.b = 1.0
         marker_text.color.a = 1.0  # Прозрачность текста
         marker_text.text = "ID: " + str(id)  # Текст для отображения
-        marker_text.lifetime = rclpy.duration.Duration(seconds=1).to_msg()
+        marker_text.lifetime = rclpy.duration.Duration(seconds=1.5).to_msg()
 
         return marker_box, marker_text
     
