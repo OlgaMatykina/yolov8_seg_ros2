@@ -86,7 +86,7 @@ class BoundingBoxNode(Node):
             ObjectPointClouds,
             'object_point_cloud',
             self.listener_callback,
-            5
+            1
         )
         
         self.declare_parameter("frame_id", "camera2_color_optical_frame")
@@ -95,13 +95,13 @@ class BoundingBoxNode(Node):
         )
 
         # Публикация ограничивающего бокса
-        self.bounding_box_publisher = self.create_publisher(SegTrack, 'seg_track', 5)
+        self.bounding_box_publisher = self.create_publisher(SegTrack, 'seg_track', 1)
 
         # Публикация для визуализации бокса в формате Marker
-        self.bounding_box_marker_publisher = self.create_publisher(MarkerArray, 'bounding_box_markers', 5)
+        self.bounding_box_marker_publisher = self.create_publisher(MarkerArray, 'bounding_box_markers', 1)
 
         # Публикация облака точек модели для отладки
-        self.model_publisher = self.create_publisher(PointCloud2, 'dev', 5)
+        self.model_publisher = self.create_publisher(PointCloud2, 'dev', 1)
 
 
         self.boxes = {
@@ -341,7 +341,7 @@ class BoundingBoxNode(Node):
         marker_box.color.b = 0.0
         marker_box.color.a = 0.5  # Прозрачность
 
-        # marker_box.lifetime = rclpy.duration.Duration(seconds=0.3).to_msg()  # Длительность отображения
+        marker_box.lifetime = rclpy.duration.Duration(seconds=1).to_msg()  # Длительность отображения
 
         # Создаем текстовую подпись
         marker_text = Marker()
@@ -360,7 +360,7 @@ class BoundingBoxNode(Node):
         marker_text.color.b = 1.0
         marker_text.color.a = 1.0  # Прозрачность текста
         marker_text.text = "ID: " + str(id)  # Текст для отображения
-        # marker_text.lifetime = rclpy.duration.Duration(seconds=0.3).to_msg()
+        marker_text.lifetime = rclpy.duration.Duration(seconds=1).to_msg()
 
         return marker_box, marker_text
     
