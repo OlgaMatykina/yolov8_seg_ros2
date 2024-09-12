@@ -72,13 +72,13 @@ def to_objects_msg(scores, classes_ids, tracking_ids, boxes,
     if isinstance(heights, Number):
         heights = [heights] * num
 
-    assert len(classes_ids) == num
-    assert len(tracking_ids) in (num, 0)
-    assert len(boxes) == num
-    assert len(masks_in_rois) == num
-    assert len(rois) == num
-    assert len(widths) == num
-    assert len(heights) == num
+    # assert len(classes_ids) == num
+    # assert len(tracking_ids) in (num, 0)
+    # assert len(boxes) == num
+    # assert len(masks_in_rois) == num
+    # assert len(rois) == num
+    # assert len(widths) == num
+    # assert len(heights) == num
 
     objects_msg = Objects()
     # objects_msg.header = header

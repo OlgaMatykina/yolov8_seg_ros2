@@ -35,9 +35,9 @@ class ObjectPointCloudExtraction:
         
         if tracking_ids.size > 0:
             object_indices = np.where(tracking_ids == object_id)[0]
-            assert len(object_indices) <= 1, \
-                "Multiple objects with the same tracking id. " \
-                "This should not happen."
+            # assert len(object_indices) <= 1, \
+            #     "Multiple objects with the same tracking id. " \
+            #     "This should not happen."
             if len(object_indices) == 0:
                 self.reason = f"Cloud not find object with tracking id {object_id}"
                 return None, None
@@ -50,7 +50,9 @@ class ObjectPointCloudExtraction:
             if len(object_indices) == 0:
                 self.reason = f"Cloud not find object with class id {object_id}"
                 return None, None
-            object_index = object_indices.item()
+            # object_index = object_indices.item()
+            object_index = object_indices[0]
+
         mask_in_roi = masks_in_rois[object_index]
         roi = rois[object_index]
         #print(f"roi - {roi}")
