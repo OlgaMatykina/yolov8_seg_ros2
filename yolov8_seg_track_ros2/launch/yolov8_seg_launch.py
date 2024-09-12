@@ -136,40 +136,40 @@ def generate_launch_description():
                 ],
                 output="screen",
             ),
-            # launch_ros.actions.Node(
-            #     package="yolov8_seg_track_ros2",
-            #     namespace=launch.substitutions.LaunchConfiguration("camera_ns"),
-            #     executable="object_point_cloud_extraction_node",
-            #     name="object_point_cloud_extraction_node",
-            #     remappings=[
-            #         ("depth_info", launch.substitutions.LaunchConfiguration("depth_info_topic")),
-            #         ("depth", launch.substitutions.LaunchConfiguration("depth_topic")),
-            #         (
-            #             "segmentation",
-            #             launch.substitutions.LaunchConfiguration("segmentation_filtered_topic"),
-            #         ),
-            #         (
-            #             "object_point_cloud",
-            #             launch.substitutions.LaunchConfiguration("object_point_cloud_topic"),
-            #         ),
-            #         (
-            #             "object_point_cloud_vis",
-            #             launch.substitutions.LaunchConfiguration("object_point_cloud_vis_topic"),
-            #         ),
+            launch_ros.actions.Node(
+                package="yolov8_seg_track_ros2",
+                namespace=launch.substitutions.LaunchConfiguration("camera_ns"),
+                executable="object_point_cloud_extraction_node",
+                name="object_point_cloud_extraction_node",
+                remappings=[
+                    ("depth_info", launch.substitutions.LaunchConfiguration("depth_info_topic")),
+                    ("depth", launch.substitutions.LaunchConfiguration("depth_topic")),
+                    (
+                        "segmentation",
+                        launch.substitutions.LaunchConfiguration("segmentation_filtered_topic"),
+                    ),
+                    (
+                        "object_point_cloud",
+                        launch.substitutions.LaunchConfiguration("object_point_cloud_topic"),
+                    ),
+                    (
+                        "object_point_cloud_vis",
+                        launch.substitutions.LaunchConfiguration("object_point_cloud_vis_topic"),
+                    ),
                     
-            #     ],
-            #     parameters=[
-            #         {
-            #             "queue_size": launch.substitutions.LaunchConfiguration(
-            #                 "queue_size"
-            #             ),
-            #             "frame_id": launch.substitutions.LaunchConfiguration(
-            #                 "frame_id"
-            #             ),
-            #         }
-            #     ],
-            #     output="screen",
-            # ),
+                ],
+                parameters=[
+                    {
+                        "queue_size": launch.substitutions.LaunchConfiguration(
+                            "queue_size"
+                        ),
+                        "frame_id": launch.substitutions.LaunchConfiguration(
+                            "frame_id"
+                        ),
+                    }
+                ],
+                output="screen",
+            ),
             # launch_ros.actions.Node(
             #     package="yolov8_seg_track_ros2",
             #     namespace=launch.substitutions.LaunchConfiguration("camera_ns"),

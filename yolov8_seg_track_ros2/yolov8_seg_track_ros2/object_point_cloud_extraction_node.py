@@ -51,10 +51,10 @@ class ObjectPointCloudExtractionNode(Node):
 
         self.br = CvBridge()
   
-        depth_info_sub = message_filters.Subscriber(self, CameraInfo, "/camera2/camera2/aligned_depth_to_color/camera_info")
-        depth_sub = message_filters.Subscriber(self, CompressedImage, "/camera2/camera2/aligned_depth_to_color/image_raw/compressedDepth") #надо добавить в launch remapping topics
+        depth_info_sub = message_filters.Subscriber(self, CameraInfo, "depth_info")
+        depth_sub = message_filters.Subscriber(self, CompressedImage, "depth") #надо добавить в launch remapping topics
         objects_sub = message_filters.Subscriber(
-            self, Objects, "/segmentation_filtered"
+            self, Objects, "segmentation"
         )
 
         self.ts = message_filters.ApproximateTimeSynchronizer(
@@ -91,17 +91,17 @@ class ObjectPointCloudExtractionNode(Node):
             
             object_point_clouds_msg.point_clouds.append(object_point_cloud_msg)
 
-            point_cloud_o3d = pointcloud2_to_open3d(object_point_cloud_msg.point_cloud)
+            # point_cloud_o3d = pointcloud2_to_open3d(object_point_cloud_msg.point_cloud)
 
-            if point_cloud_o3d.is_empty():
-                continue
+            # if point_cloud_o3d.is_empty():
+            #     continue
 
-            point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d, 0.3)
+            # point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d, 0.3)
 
-            point_cloud = open3d_to_pointcloud2(point_cloud_o3d)
+            # point_cloud = open3d_to_pointcloud2(point_cloud_o3d)
 
             # point_clouds.append(object_point_cloud_msg.point_cloud)
-            point_clouds.append(point_cloud)
+            point_clouds.append(object_point_cloud_msg.point_cloud)
 
 
             # if object_point_cloud_msg is not None:

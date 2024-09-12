@@ -17,6 +17,7 @@ class ObjectPoseEstimation:
         else:
             self.gt_pc = o3d.geometry.PointCloud(gt_point_cloud)
         self.gt_pc_down, self.gt_fpfh = self._preprocess_pc(self.gt_pc, no_noise_allowed=True)
+        # self.gt_pc_down, self.gt_fpfh = self._preprocess_pc(self.gt_pc_down, no_noise_allowed=True)
 
         self.pc = None
         self.pc_down = None

@@ -152,7 +152,7 @@ class BoundingBoxNode(Node):
             if object.tracking_id not in self.boxes.keys():
                 continue
 
-            self.initial_pose = self.init_pose(object.point_cloud, object.tracking_id)
+            # self.initial_pose = self.init_pose(object.point_cloud, object.tracking_id)
             
             bbox_msg, _, object_pose = self.estimate_pose_ros(object, self.prev_service)
 
@@ -204,7 +204,7 @@ class BoundingBoxNode(Node):
         if point_cloud_o3d.is_empty():
             return None
 
-        point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d, 0.5)
+        # point_cloud_o3d = remove_noise_dbscan(point_cloud_o3d, 0.5)
 
         if point_cloud_o3d.is_empty():
             return None
@@ -214,23 +214,41 @@ class BoundingBoxNode(Node):
 
         # bounding_box = self.fix_box_sizes(bounding_box, tracking_id)
 
-        # Позиция и ориентация
-        pose = Pose()
-        pose.position.x = bounding_box.center[0]
-        pose.position.y = bounding_box.center[1]
-        pose.position.z = bounding_box.center[2]
+        # # Позиция и ориентация
+        # pose = Pose()
+        # pose.position.x = bounding_box.center[0]
+        # pose.position.y = bounding_box.center[1]
+        # pose.position.z = bounding_box.center[2]
 
-        rotation_matrix = np.array(bounding_box.R)
-        rotation = R.from_matrix(rotation_matrix)
-        quat = rotation.as_quat()  # Возвращает кватернион [x, y, z, w]
+        # rotation_matrix = np.array(bounding_box.R)
+        # rotation = R.from_matrix(rotation_matrix)
+        # quat = rotation.as_quat()  # Возвращает кватернион [x, y, z, w]
 
-        pose.orientation.x = quat[0]
-        pose.orientation.y = quat[1]
-        pose.orientation.z = quat[2]
-        pose.orientation.w = quat[3]
+        # pose.orientation.x = quat[0]
+        # pose.orientation.y = quat[1]
+        # pose.orientation.z = quat[2]
+        # pose.orientation.w = quat[3]
 
 
-        return pose_to_matrix(pose)
+        # return pose_to_matrix(pose)
+
+        center = bounding_box.center
+        rot = bounding_box.R
+
+        transformation = np.eye(4)
+        transformation[:3, :3] = rot
+        transformation[:3, 3] = center
+
+        # Превращение Bounding Box в облако точек
+        obb_points = bounding_box.get_box_points()  # Вершины Bounding Box
+        obb_pcd = o3d.geometry.PointCloud()
+        obb_pcd.points = o3d.utility.Vector3dVector(np.asarray(obb_points))
+
+        pc = open3d_to_pointcloud2(obb_pcd)
+        pc.header.frame_id = self.frame_id
+        self.model_publisher.publish(pc)
+
+        return transformation
 
     # def create_bounding_box_msg(self, bounding_box):
     #     # Создаем сообщение BoundingBox
@@ -341,7 +359,7 @@ class BoundingBoxNode(Node):
         marker_box.color.b = 0.0
         marker_box.color.a = 0.5  # Прозрачность
 
-        # marker_box.lifetime = rclpy.duration.Duration(seconds=0.3).to_msg()  # Длительность отображения
+        marker_box.lifetime = rclpy.duration.Duration(seconds=1).to_msg()  # Длительность отображения
 
         # Создаем текстовую подпись
         marker_text = Marker()
@@ -360,7 +378,7 @@ class BoundingBoxNode(Node):
         marker_text.color.b = 1.0
         marker_text.color.a = 1.0  # Прозрачность текста
         marker_text.text = "ID: " + str(id)  # Текст для отображения
-        # marker_text.lifetime = rclpy.duration.Duration(seconds=0.3).to_msg()
+        marker_text.lifetime = rclpy.duration.Duration(seconds=1).to_msg()
 
         return marker_box, marker_text
     
@@ -381,10 +399,10 @@ class BoundingBoxNode(Node):
             return None, object_pose_estimator, None
         
         # print(open3d_to_pointcloud2(object_pose_estimator.gt_pc))
-        pc = open3d_to_pointcloud2(object_pose_estimator.gt_pc) #.transform(self.initial_pose))
-        pc.header.frame_id = self.frame_id
+        # pc = open3d_to_pointcloud2(object_pose_estimator.gt_pc.transform(self.initial_pose))
+        # pc.header.frame_id = self.frame_id
         
-        self.model_publisher.publish(pc)
+        # self.model_publisher.publish(pc)
         print('Publish model point cloud')
         
 
