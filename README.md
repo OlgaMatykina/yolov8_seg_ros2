@@ -29,7 +29,7 @@ cd /colcon_ws
 source install/setup.bash
 ```
 
- Скачать веса для YOLO по [ссылке](https://disk.yandex.ru/d/C4mr0j0rmkF-MA), поместить в папку /yolov8_seg_ros2/yolov8_seg_track_ros2/weights
+ Скачать веса для YOLO по ссылкам [YOLOv8-seg M](https://disk.yandex.ru/d/fiXBBT7kVdD7WA), [YOLOv8-seg S](https://disk.yandex.ru/d/pahxkayxLmwDGA), поместить в папку /yolov8_seg_ros2/yolov8_seg_track_ros2/weights. В зависимости от выбора модели поменять параметр weights в launch-файле.
 
  Скачать веса для VL-SAT по [ссылке](https://disk.yandex.ru/d/J9nb8sDD3pEUFQ), поместить в папку /yolov8_seg_ros2/yolov8_seg_track_ros2/yolov8_seg_track_ros2/vlsat/3dssg_best_ckpt
  

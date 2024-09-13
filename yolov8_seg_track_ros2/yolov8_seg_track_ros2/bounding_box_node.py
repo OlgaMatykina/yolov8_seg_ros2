@@ -370,12 +370,12 @@ class BoundingBoxNode(Node):
         marker_text.type = Marker.TEXT_VIEW_FACING
         marker_text.action = Marker.ADD
         marker_text.pose.position.x = marker_box.pose.position.x
-        marker_text.pose.position.y = marker_box.pose.position.y
+        marker_text.pose.position.y = marker_box.pose.position.y 
         marker_text.pose.position.z = marker_box.pose.position.z + marker_box.scale.z # Позиция текста над боксом
         marker_text.scale.z = 0.1  # Размер текста
         marker_text.color.r = 1.0
-        marker_text.color.g = 1.0
-        marker_text.color.b = 1.0
+        marker_text.color.g = 0.0
+        marker_text.color.b = 0.0
         marker_text.color.a = 1.0  # Прозрачность текста
         marker_text.text = "ID: " + str(id)  # Текст для отображения
         marker_text.lifetime = rclpy.duration.Duration(seconds=1).to_msg()

@@ -53,9 +53,6 @@ class AssociateNode(Node):
             pred_tracking_ids = objects_msg.tracking_ids
             past_tracking_ids = self.past_box_msg.tracking_ids
 
-            if len(pred_tracking_ids)==0:
-                return
-
             # print ("BEFORE",pred_tracking_ids)
             pred_masks_msg = objects_msg.masks
             past_masks_msg = self.past_box_msg.masks
