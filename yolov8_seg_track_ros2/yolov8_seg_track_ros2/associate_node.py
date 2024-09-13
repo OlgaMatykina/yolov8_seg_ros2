@@ -49,11 +49,11 @@ class AssociateNode(Node):
             self.past_box_msg = objects_msg
             self.pub_objects.publish(objects_msg)
         else:
-            #print (self.past_box_msg )
+            # print (self.past_box_msg )
             pred_tracking_ids = objects_msg.tracking_ids
             past_tracking_ids = self.past_box_msg.tracking_ids
 
-            # print ("BEFORE",pred_tracking_ids)
+            print ("BEFORE",pred_tracking_ids)
             pred_masks_msg = objects_msg.masks
             past_masks_msg = self.past_box_msg.masks
             pred_masks = reconstruct_masks(pred_masks_msg)
@@ -73,7 +73,7 @@ class AssociateNode(Node):
                         max_iou = max(ious, key=ious.get)
                         pred_tracking_ids[pred_tracking_ids.index(item)] = int(max_iou)
 
-                # print ("AFTER",pred_tracking_ids)
+                print ("AFTER",pred_tracking_ids)
                 objects_msg.tracking_ids = pred_tracking_ids
                 self.pub_objects.publish(objects_msg)
 

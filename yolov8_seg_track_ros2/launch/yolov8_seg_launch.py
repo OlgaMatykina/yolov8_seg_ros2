@@ -13,7 +13,7 @@ def generate_launch_description():
                 "weights",
                 default_value="/home/docker_semseg/colcon_ws/src/yolov8_seg_track_ros2/weights/box_container_M_add519.pt",
             ),
-            launch.actions.DeclareLaunchArgument("confidence", default_value="0.25"),
+            launch.actions.DeclareLaunchArgument("confidence", default_value="0.5"),
             launch.actions.DeclareLaunchArgument("frame_id", default_value="camera2_color_optical_frame"),
             launch.actions.DeclareLaunchArgument("treshold", default_value="0.5"),
             # Topics

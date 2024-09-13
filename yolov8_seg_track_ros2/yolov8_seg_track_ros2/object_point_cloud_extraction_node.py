@@ -52,7 +52,10 @@ class ObjectPointCloudExtractionNode(Node):
         self.br = CvBridge()
   
         depth_info_sub = message_filters.Subscriber(self, CameraInfo, "depth_info")
-        depth_sub = message_filters.Subscriber(self, CompressedImage, "depth") #надо добавить в launch remapping topics
+        # depth_info_sub = message_filters.Subscriber(self, CameraInfo, "/camera2/camera2/aligned_depth_to_color/camera_info")
+        depth_sub = message_filters.Subscriber(self, CompressedImage, "depth")
+        # depth_sub = message_filters.Subscriber(self, CompressedImage, "/camera2/camera2/aligned_depth_to_color/image_raw/compressedDepth")
+
         objects_sub = message_filters.Subscriber(
             self, Objects, "segmentation"
         )

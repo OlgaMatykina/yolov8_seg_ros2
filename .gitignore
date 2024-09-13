@@ -9,4 +9,5 @@
 /bags/rosbag2*
 *.pth
 *.pt
-/yolov8_seg_ros2/yolov8_seg_ros2/vlsat/3dssg_best_ckpt/mmg_best.pth
+/yolov8_seg_track_ros2/yolov8_seg_track_ros2/vlsat/3dssg_best_ckpt/mmg_best.pth
+/yolov8_seg_track_ros2/yolov8_seg_track_ros2/vlsat/3dssg_best_ckpt/events*

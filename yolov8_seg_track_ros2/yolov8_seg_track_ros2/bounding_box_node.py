@@ -119,8 +119,8 @@ class BoundingBoxNode(Node):
             self.object_pose_estimators[i] = ObjectPoseEstimation(
                 get_box_point_cloud(self.boxes[i], points_per_cm=5),
                 voxel_size=0.02,
-                max_correspondence_distances=[0.04, 0.029, 0.018, 0.007])
-            # max_correspondence_distances=[0.04])
+                # max_correspondence_distances=[0.04, 0.029 , 0.018, 0.007])
+                max_correspondence_distances=[0.01, 0.007])
 
         
 
@@ -149,36 +149,38 @@ class BoundingBoxNode(Node):
 
         for object in msg.point_clouds:
 
-            if object.tracking_id not in self.boxes.keys():
-                continue
-
-            # self.initial_pose = self.init_pose(object.point_cloud, object.tracking_id)
+            if object.tracking_id not in self.boxes.keys(): # если не распознали aruco
+                print("NOT KNOWN BOX")
             
-            bbox_msg, _, object_pose = self.estimate_pose_ros(object, self.prev_service)
+            else:               
 
-            if bbox_msg is None:
-                continue
+                # self.initial_pose = self.init_pose(object.point_cloud, object.tracking_id)
+                
+                bbox_msg, _, object_pose = self.estimate_pose_ros(object, self.prev_service)
 
-            quat = np.array([bbox_msg.pose.orientation.x, bbox_msg.pose.orientation.y, bbox_msg.pose.orientation.z, bbox_msg.pose.orientation.w])
-            rotation = R.from_quat(quat)
-            rotation_matrix = rotation.as_matrix()
+                if bbox_msg is None:
+                    continue
 
-            bounding_box = o3d.geometry.OrientedBoundingBox(
-                    np.array([[bbox_msg.pose.position.x], [bbox_msg.pose.position.y], [bbox_msg.pose.position.z]]), 
-                    rotation_matrix, 
-                    np.array([[0.18], [0.26], [0.34]]))
+                quat = np.array([bbox_msg.pose.orientation.x, bbox_msg.pose.orientation.y, bbox_msg.pose.orientation.z, bbox_msg.pose.orientation.w])
+                rotation = R.from_quat(quat)
+                rotation_matrix = rotation.as_matrix()
 
-            marker_box, marker_text = self.create_bounding_box_marker(bounding_box, object.tracking_id)
-            marker_array.markers.append(marker_box)
-            marker_array.markers.append(marker_text)
+                bounding_box = o3d.geometry.OrientedBoundingBox(
+                        np.array([[bbox_msg.pose.position.x], [bbox_msg.pose.position.y], [bbox_msg.pose.position.z]]), 
+                        rotation_matrix, 
+                        np.array([[0.18], [0.26], [0.34]]))
+
+                marker_box, marker_text = self.create_bounding_box_marker(bounding_box, object.tracking_id)
+                marker_array.markers.append(marker_box)
+                marker_array.markers.append(marker_text)
 
 
-            # Создаем минимальный ограничивающий бокс
-            # bounding_box = self.create_minimal_oriented_bounding_box(point_cloud_o3d)
+                # Создаем минимальный ограничивающий бокс
+                # bounding_box = self.create_minimal_oriented_bounding_box(point_cloud_o3d)
 
-            # bounding_box = self.fix_box_sizes(bounding_box, object.tracking_id)
+                # bounding_box = self.fix_box_sizes(bounding_box, object.tracking_id)
 
-            seg_track_msg.bboxes.append(bbox_msg)
+                seg_track_msg.bboxes.append(bbox_msg)
 
         if len(seg_track_msg.bboxes)>0:
             # Публикуем ограничивающий бокс
@@ -371,7 +373,7 @@ class BoundingBoxNode(Node):
         marker_text.action = Marker.ADD
         marker_text.pose.position.x = marker_box.pose.position.x
         marker_text.pose.position.y = marker_box.pose.position.y 
-        marker_text.pose.position.z = marker_box.pose.position.z + marker_box.scale.z # Позиция текста над боксом
+        marker_text.pose.position.z = marker_box.pose.position.z #+ marker_box.scale.z # Позиция текста над боксом
         marker_text.scale.z = 0.1  # Размер текста
         marker_text.color.r = 1.0
         marker_text.color.g = 0.0

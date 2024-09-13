@@ -62,6 +62,11 @@ class ObjectPoseEstimation:
                     o3d.pipelines.registration.CorrespondenceCheckerBasedOnEdgeLength(0.9),
                     o3d.pipelines.registration.CorrespondenceCheckerBasedOnDistance(self.voxel_size * 1.5)],
                 criteria=o3d.pipelines.registration.RANSACConvergenceCriteria(100000, 0.999))
+
+            # option = o3d.pipelines.registration.FastGlobalRegistrationOption(self.max_correspondence_distances[0])
+            # self.global_reg = o3d.pipelines.registration.registration_fgr_based_on_feature_matching(
+            #     self.gt_pc_down, self.pc_down, o3d.pipelines.registration.FastGlobalRegistrationOption(option)
+            # )
         except:
             self.reason = "Global registration failed"
             print('REASON', self.reason)
