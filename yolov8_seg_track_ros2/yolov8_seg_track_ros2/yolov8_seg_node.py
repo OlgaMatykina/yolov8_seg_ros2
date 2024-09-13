@@ -71,7 +71,7 @@ class YOLOv8SegNode(Node):
 
         )
         # Добавляем ArUco-маркеры
-        self.aruco_dict = aruco.getPredefinedDictionary(cv2.aruco.DICT_ARUCO_ORIGINAL)
+        self.aruco_dict = aruco.getPredefinedDictionary(cv2.aruco.DICT_7X7_1000) #DICT_ARUCO_ORIGINAL
         self.aruco_params = aruco.DetectorParameters()
 
     def on_image(self, image_msg: CompressedImage):
