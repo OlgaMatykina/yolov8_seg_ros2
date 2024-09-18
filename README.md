@@ -14,6 +14,7 @@ sudo ./build.sh
 ```
 export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 export CYCLONEDDS_URI=/home/docker_semseg/bags/cyclone_dds_conf.xml
+
 ```
 
 При первом входе в контейнер выполнить сборку рабочего пространства. Colcon находится в корневой директории  
