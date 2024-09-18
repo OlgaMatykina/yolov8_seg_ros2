@@ -27,7 +27,7 @@ def extract_images_and_points(bag_file_path: Union[str, PathLike], output_dir: U
     bag_file_path = Path(bag_file_path)
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    front_cam_dir = output_dir / "519_2"
+    front_cam_dir = output_dir / "519_3"
     front_cam_dir.mkdir(exist_ok=True)
     # back_cam_dir = output_dir / "13_08"
     # back_cam_dir.mkdir(exist_ok=True)

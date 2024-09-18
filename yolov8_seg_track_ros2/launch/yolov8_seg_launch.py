@@ -11,9 +11,9 @@ def generate_launch_description():
             launch.actions.DeclareLaunchArgument("device", default_value="cuda:0"),
             launch.actions.DeclareLaunchArgument(
                 "weights",
-                default_value="/home/docker_semseg/colcon_ws/src/yolov8_seg_track_ros2/weights/box_container_M_big_aruco.pt",
+                default_value="/home/docker_semseg/colcon_ws/src/yolov8_seg_track_ros2/weights/merged_best.pt",
             ),
-            launch.actions.DeclareLaunchArgument("confidence", default_value="0.5"),
+            launch.actions.DeclareLaunchArgument("confidence", default_value="0.8"),
             launch.actions.DeclareLaunchArgument("frame_id", default_value="camera2_color_optical_frame"),
             launch.actions.DeclareLaunchArgument("treshold", default_value="0.5"),
             # Topics
@@ -29,7 +29,7 @@ def generate_launch_description():
                 "relationships_list",
                 default_value = "/home/docker_semseg/colcon_ws/src/yolov8_seg_track_ros2/yolov8_seg_track_ros2/vlsat/data/3DSSG_subset/relationships.txt",
             ),
-            launch.actions.DeclareLaunchArgument("3d_box", default_value = "1"
+            launch.actions.DeclareLaunchArgument("3d_box", default_value = "0"
             ),
             launch.actions.DeclareLaunchArgument(
                 "camera_ns", default_value="/camera2/camera2/"
@@ -66,6 +66,9 @@ def generate_launch_description():
             ),
             launch.actions.DeclareLaunchArgument(
                 "segmentation_filtered_topic", default_value="/segmentation_filtered"
+            ),
+            launch.actions.DeclareLaunchArgument(
+                "relations_color_topic", default_value="/relations_color"
             ),
 
             # Nodes
@@ -125,7 +128,8 @@ def generate_launch_description():
                     ("image", launch.substitutions.LaunchConfiguration("image_topic")),
                     (
                         "segmentation",
-                        launch.substitutions.LaunchConfiguration("segmentation_filtered_topic"),
+                        #launch.substitutions.LaunchConfiguration("segmentation_filtered_topic"),
+                        launch.substitutions.LaunchConfiguration("segmentation_topic")
                     ),
                     (
                         "segmentation_color",
@@ -146,7 +150,8 @@ def generate_launch_description():
                     ("depth", launch.substitutions.LaunchConfiguration("depth_topic")),
                     (
                         "segmentation",
-                        launch.substitutions.LaunchConfiguration("segmentation_filtered_topic"),
+                        #launch.substitutions.LaunchConfiguration("segmentation_filtered_topic"),
+                        launch.substitutions.LaunchConfiguration("segmentation_topic")
                     ),
                     (
                         "object_point_cloud",
@@ -213,8 +218,8 @@ def generate_launch_description():
                         launch.substitutions.LaunchConfiguration("seg_track_topic"),
                     ),
                     (
-                        "bounding_box_markers",
-                        launch.substitutions.LaunchConfiguration("bounding_box_markers_topic"),
+                        "object_point_cloud",
+                        launch.substitutions.LaunchConfiguration("object_point_cloud_topic"),
                     ),
                     (
                         "graph",
@@ -235,9 +240,6 @@ def generate_launch_description():
                         "config_path": launch.substitutions.LaunchConfiguration(
                             "config_path"
                         ),
-                        "queue_size": launch.substitutions.LaunchConfiguration(
-                            "queue_size"
-                        ),
                         "3d_box": launch.substitutions.LaunchConfiguration(
                             "3d_box"
                         ),                        
@@ -245,6 +247,49 @@ def generate_launch_description():
                     }
                 ],
                 output="screen",
+            ),            
+            launch_ros.actions.Node(
+                package="yolov8_seg_track_ros2",
+                namespace=launch.substitutions.LaunchConfiguration("camera_ns"),
+                executable="vlsat_visualizer_node",
+                name="vlsat_visualizer_node",
+                remappings=[
+                    
+                    (
+                        "graph",
+                        launch.substitutions.LaunchConfiguration("graph_topic"),
+                    ),
+                    (
+                        "segmentation",
+                        launch.substitutions.LaunchConfiguration("segmentation_filtered_topic"),
+                    ),
+                    (
+                        "segmentation_color",
+                        launch.substitutions.LaunchConfiguration(
+                            "segmentation_color_topic"
+                        )
+                    ),
+                    (
+                        "object_point_cloud",
+                        launch.substitutions.LaunchConfiguration("object_point_cloud_topic"),
+                    ),            
+                    (
+                        "relations_color",
+                        launch.substitutions.LaunchConfiguration(
+                            "relations_color_topic"
+                        )
+                    ),
+
+                ],
+                parameters=[
+                    {
+                        "queue_size": launch.substitutions.LaunchConfiguration(
+                            "queue_size"
+                        ),                 
+                    }
+                ],
+                output="screen",
             ),
+        
         ]
     )

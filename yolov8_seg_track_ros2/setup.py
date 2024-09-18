@@ -26,6 +26,7 @@ setup(
             'bounding_box_node = yolov8_seg_track_ros2.bounding_box_node:main',
             'vlsat_node = yolov8_seg_track_ros2.vlsat_node:main',
             'associate_node = yolov8_seg_track_ros2.associate_node:main',
+            'vlsat_visualizer_node = yolov8_seg_track_ros2.vlsat_visualizer_node:main',
         ],
     },
 )

@@ -22,7 +22,7 @@ class VisualizerNode(Node):
     def __init__(self):
         super().__init__("visualizer_node")
 
-        self.palette = ((0, 0, 255),)
+        self.palette = ((0, 0, 255), (255, 0, 0))
 
         self.colors_palette = {
             0: {"bounds": (7, 7, 132), "inner": (36, 77, 201)},  # firehose
@@ -60,9 +60,16 @@ class VisualizerNode(Node):
         #     image, segm_msg.masks, segm_msg.classes_ids
         # )
 
+        types = {
+            0: 'box',
+            1: 'container'
+        }
+
+        classes_names = [types[i] for i in segm_msg.classes_ids]
+
         segmentation_color = image.copy()
         masks = reconstruct_masks(segm_msg.masks)
-        draw_objects(segmentation_color, segm_msg.scores, segm_msg.tracking_ids, masks=masks, draw_scores=True, draw_masks=True, draw_ids=True, palette=self.palette)
+        draw_objects(segmentation_color, segm_msg.scores, segm_msg.tracking_ids, masks=masks, draw_scores=True, draw_masks=True, draw_ids=True, palette=self.palette, customs=segm_msg.classes_ids)
         
         segm_color_msg = self.br.cv2_to_imgmsg(segmentation_color, "bgr8")
         segm_color_msg.header = segm_msg.header

@@ -44,10 +44,14 @@ class AssociateNode(Node):
         )
     def associate(self, objects_msg: Objects):
         
-        
+        pred_tracking_ids = objects_msg.tracking_ids
+
         if self.past_box_msg is None:
-            self.past_box_msg = objects_msg
-            self.pub_objects.publish(objects_msg)
+            if len(list(set(self.not_detected_ids) & set(pred_tracking_ids))) == 0:
+                self.past_box_msg = objects_msg
+                self.pub_objects.publish(objects_msg)
+            else:
+                self.pub_objects.publish(objects_msg)
         else:
             # print (self.past_box_msg )
             pred_tracking_ids = objects_msg.tracking_ids
@@ -71,7 +75,8 @@ class AssociateNode(Node):
                         if len(ious)==0:
                             continue
                         max_iou = max(ious, key=ious.get)
-                        pred_tracking_ids[pred_tracking_ids.index(item)] = int(max_iou)
+                        if max_iou > 0.9:
+                            pred_tracking_ids[pred_tracking_ids.index(item)] = int(max_iou)
 
                 print ("AFTER",pred_tracking_ids)
                 objects_msg.tracking_ids = pred_tracking_ids

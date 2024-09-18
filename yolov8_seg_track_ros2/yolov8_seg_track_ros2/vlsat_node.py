@@ -24,28 +24,28 @@ class VLSAT_Node(Node):
 
         self.declare_parameter(
             "ckpt",
-            "/home/docker_semseg/colcon_ws/src/yolov8_seg_track_ros2/yolov8_seg_ros2/vlsat/3dssg_best_ckpt",
+            "/home/docker_semseg/colcon_ws/src/yolov8_seg_track_ros2/yolov8_seg_track_ros2/vlsat/3dssg_best_ckpt",
             )
         self.ckpt = self.get_parameter("ckpt").get_parameter_value().string_value
 
         self.declare_parameter(
             "config_path",
-            "/home/docker_semseg/colcon_ws/src/yolov8_seg_track_ros2/yolov8_seg_ros2/vlsat/config/mmgnet.json",
+            "/home/docker_semseg/colcon_ws/src/yolov8_seg_track_ros2/yolov8_seg_track_ros2/vlsat/config/mmgnet.json",
             )
         self.config_path = self.get_parameter("config_path").get_parameter_value().string_value
 
         self.declare_parameter(
             "relationships_list",
-            "/home/docker_semseg/colcon_ws/src/yolov8_seg_track_ros2/yolov8_seg_ros2/vlsat/data/3DSSG_subset/relationships.txt",
+            "/home/docker_semseg/colcon_ws/src/yolov8_seg_track_ros2/yolov8_seg_track_ros2/vlsat/data/3DSSG_subset/relationships.txt",
             )
         self.relationships_list = self.get_parameter("relationships_list").get_parameter_value().string_value
 
-        self.declare_parameter("queue_size", 5)
+        self.declare_parameter("queue_size", 10)
         self.queue_size = (
             self.get_parameter("queue_size").get_parameter_value().integer_value
         )
         
-        self.declare_parameter("3d_box", 1)
+        self.declare_parameter("3d_box", 0)
         self.box_3d = (
             self.get_parameter("3d_box").get_parameter_value().integer_value
         )
@@ -63,13 +63,13 @@ class VLSAT_Node(Node):
         if self.box_3d == 1:
             self.sub_seg_track = message_filters.Subscriber(self, SegTrack, 'seg_track')
         
-            self.ts = message_filters.ApproximateTimeSynchronizer([self.sub_seg_track], self.queue_size, slop=0.1)
+            self.ts = message_filters.TimeSynchronizer([self.sub_seg_track], self.queue_size)
             self.ts.registerCallback(self.on_3d_box)
         else:
             
             self.sub_pc = message_filters.Subscriber(self, ObjectPointClouds, 'object_point_cloud')
-
-            self.ts = message_filters.ApproximateTimeSynchronizer([self.sub_pc], self.queue_size, slop=0.1)
+            #self.sub_objects = message_filters.Subscriber(self, Objects, 'segmentation')
+            self.ts = message_filters.TimeSynchronizer([self.sub_pc], self.queue_size)
             self.ts.registerCallback(self.on_point_cloud)
             
 
@@ -116,6 +116,7 @@ class VLSAT_Node(Node):
         #point_clouds = []
         if len(point_clouds) <= 1:
             saved_relations_msg = Relationlist()
+            saved_relations_msg.header = seg_track_msg.header
             saved_relations_msg.relations = []
             self.pub_graph.publish(saved_relations_msg)
         else:
@@ -127,12 +128,12 @@ class VLSAT_Node(Node):
             #print (seg_track_msg.bboxes)
             predicted_relations = self.edge_predictor.predict_relations(obj_points, obj_2d_feats, edge_indices, descriptor, batch_ids)
             #print(predicted_relations.shape)
-            topk_values, topk_indices = torch.topk(predicted_relations, 5, dim=1,  largest=True)
+            topk_values, topk_indices = torch.topk(predicted_relations, 2, dim=1,  largest=True)
             #print(topk_indices, topk_values)
             saved_relations = self.edge_predictor.save_relations(tracking_ids, timestamps, classes_ids, predicted_relations, edge_indices)
             # print("Predicted the following relations:")
             saved_relations_msg = Relationlist()
-            
+            saved_relations_msg.header = seg_track_msg.header
             saved_relations_msg.relations = []
 
             for relation in saved_relations:
@@ -203,7 +204,9 @@ class VLSAT_Node(Node):
             tracking_ids.append(obj.tracking_id)
             classes_ids.append(obj.class_id)
             timestamps.append(str(pcs_msg.header.stamp.nanosec))
-        
+
+    
+        #print("TRACKING IDS VLSAT", tracking_ids)
         pcds = {}
         point_clouds = []
         for i, track_id in enumerate(tracking_ids):
@@ -223,38 +226,46 @@ class VLSAT_Node(Node):
         #point_clouds = []
         if len(point_clouds) <= 1:
             saved_relations_msg = Relationlist()
+            saved_relations_msg.header = pcs_msg.header
             saved_relations_msg.relations = []
             self.pub_graph.publish(saved_relations_msg)
         else:
-            obj_points, obj_2d_feats, edge_indices, descriptor, batch_ids = self.edge_predictor.preprocess_poinclouds(
-                point_clouds,
-                self.edge_predictor.config.dataset.num_points
-            )
-            
-            #print (seg_track_msg.bboxes)
-            predicted_relations = self.edge_predictor.predict_relations(obj_points, obj_2d_feats, edge_indices, descriptor, batch_ids)
-            #print(predicted_relations.shape)
-            topk_values, topk_indices = torch.topk(predicted_relations, 5, dim=1,  largest=True)
-            #print(topk_indices, topk_values)
-            saved_relations = self.edge_predictor.save_relations(tracking_ids, timestamps, classes_ids, predicted_relations, edge_indices)
-            print("Predicted the following relations:")
-            saved_relations_msg = Relationlist()
-            
-            saved_relations_msg.relations = []
+            try:
+                obj_points, obj_2d_feats, edge_indices, descriptor, batch_ids = self.edge_predictor.preprocess_poinclouds(
+                    point_clouds,
+                    self.edge_predictor.config.dataset.num_points
+                )
+                
+                #print (seg_track_msg.bboxes)
+                predicted_relations = self.edge_predictor.predict_relations(obj_points, obj_2d_feats, edge_indices, descriptor, batch_ids)
+                #print(predicted_relations.shape)
+                topk_values, topk_indices = torch.topk(predicted_relations, 2, dim=1,  largest=True)
+                #print(topk_indices, topk_values)
+                saved_relations = self.edge_predictor.save_relations(tracking_ids, timestamps, classes_ids, predicted_relations, edge_indices)
+                print("Predicted the following relations:")
+                saved_relations_msg = Relationlist()
+                saved_relations_msg.header = pcs_msg.header
+                saved_relations_msg.relations = []
 
-            for relation in saved_relations:
-                relate = Relation()
-                relate.id_1 = relation['id_1']
-                relate.timestamp_1 = relation['timestamp_1']
-                relate.class_name_1 = str(relation['class_name_1'])
-                relate.id_2 = relation['id_2']
-                relate.timestamp_2 = relation['timestamp_2']
-                relate.class_name_2 = str(relation['class_name_2'])
-                relate.rel_id = relation['rel_id']
-                relate.rel_name = relation['rel_name']
+                for relation in saved_relations:
+                    relate = Relation()
+                    relate.id_1 = relation['id_1']
+                    relate.timestamp_1 = relation['timestamp_1']
+                    relate.class_name_1 = str(relation['class_name_1'])
+                    relate.id_2 = relation['id_2']
+                    relate.timestamp_2 = relation['timestamp_2']
+                    relate.class_name_2 = str(relation['class_name_2'])
+                    relate.rel_id = relation['rel_id']
+                    relate.rel_name = relation['rel_name']
 
-                saved_relations_msg.relations.append(relate)
-            self.pub_graph.publish(saved_relations_msg)
+                    saved_relations_msg.relations.append(relate)
+                self.pub_graph.publish(saved_relations_msg)
+            except:
+                saved_relations_msg = Relationlist()
+                saved_relations_msg.header = pcs_msg.header
+                saved_relations_msg.relations = []
+                self.pub_graph.publish(saved_relations_msg)
+
 
     
 def main(args=None):

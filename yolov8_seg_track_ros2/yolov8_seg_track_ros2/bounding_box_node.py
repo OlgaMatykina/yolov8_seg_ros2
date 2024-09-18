@@ -105,12 +105,18 @@ class BoundingBoxNode(Node):
 
 
         self.boxes = {
+            0: (0.138, 0.2, 0.195), #маленькая коробка их
+            1: (0.138, 0.2, 0.195), #маленькая коробка их
+            2: (0.138, 0.2, 0.195), #маленькая коробка их
+            3: (0.138, 0.2, 0.195), #маленькая коробка их
             # 1013: (0.18, 0.26, 0.34), #большая коробка наша
+            998: (0.18, 0.26, 0.34), #большая коробка их
             # 999: (0.175, 0.425, 0.335), #большой контейнер наш
             990: (0.175, 0.425, 0.335), #большой контейнер их
             # 990: (0.138, 0.2, 0.195), #маленькая коробка наша
             313: (0.138, 0.2, 0.195), #маленькая коробка их
-            # 313: (0.156, 0.327, 0.23)
+            # 313: (0.156, 0.327, 0.23) #маленький контейнер наш
+            999: (0.156, 0.327, 0.23) #маленький контейнер их
         }
 
         self.object_pose_estimators = dict()
@@ -121,8 +127,8 @@ class BoundingBoxNode(Node):
             self.object_pose_estimators[i] = ObjectPoseEstimation(
                 get_box_point_cloud(self.boxes[i], points_per_cm=5),
                 voxel_size=0.02,
-                # max_correspondence_distances=[0.04, 0.029 , 0.018, 0.007])
-                max_correspondence_distances=[0.01, 0.007])
+                max_correspondence_distances=[0.04, 0.029 , 0.018, 0.007])
+                # max_correspondence_distances=[0.01, 0.007])
 
         
 
@@ -363,7 +369,7 @@ class BoundingBoxNode(Node):
         marker_box.color.b = 0.0
         marker_box.color.a = 0.5  # Прозрачность
 
-        marker_box.lifetime = rclpy.duration.Duration(seconds=1).to_msg()  # Длительность отображения
+        marker_box.lifetime = rclpy.duration.Duration(seconds=2).to_msg()  # Длительность отображения
 
         # Создаем текстовую подпись
         marker_text = Marker()
@@ -381,8 +387,8 @@ class BoundingBoxNode(Node):
         marker_text.color.g = 0.0
         marker_text.color.b = 0.0
         marker_text.color.a = 1.0  # Прозрачность текста
-        marker_text.text = "ID: " + str(id)  # Текст для отображения
-        marker_text.lifetime = rclpy.duration.Duration(seconds=1).to_msg()
+        marker_text.text = " " + str(id)  # Текст для отображения
+        marker_text.lifetime = rclpy.duration.Duration(seconds=2).to_msg()
 
         return marker_box, marker_text
     

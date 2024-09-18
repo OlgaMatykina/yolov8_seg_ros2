@@ -115,7 +115,9 @@ class ObjectPointCloudExtractionNode(Node):
             #     self.visualization_pub.publish(object_point_cloud_msg.point_cloud)
         if len(object_point_clouds_msg.point_clouds)>0:
             # print("Publishing object point clouds.")
-            object_point_clouds_msg.header = depth_msg.header
+            # object_point_clouds_msg.header = depth_msg.header
+            object_point_clouds_msg.header = objects_msg.header
+
             self.object_point_cloud_pub.publish(object_point_clouds_msg)
 
             # print("Publishing visualization point cloud.")
@@ -154,7 +156,7 @@ class ObjectPointCloudExtractionNode(Node):
         object_point_cloud_msg.class_id = int(classes_ids[object_index])
         object_point_cloud_msg.confidence = scores[object_index]
         if tracking_ids.size > 0:
-            object_point_cloud_msg.tracking_id = int(tracking_ids[object_index])
+            object_point_cloud_msg.tracking_id = int(object_id) #int(tracking_ids[object_index])
         else:
             object_point_cloud_msg.tracking_id = -1
         object_point_cloud_msg.point_cloud = array_to_pointcloud2(object_point_cloud, frame_id=self.frame_id)

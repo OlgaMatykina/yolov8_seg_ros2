@@ -12,7 +12,7 @@ def draw_objects(image,
         min_score=0.0,
         draw_scores=False, draw_ids=False, draw_boxes=False, draw_masks=False,
         format=None,
-        palette=((0, 0, 255),), color_by_object_id=False):
+        palette=((0, 0, 255), (255, 0, 0)), color_by_object_id=False, color_by_class_id = True):
 
     def _check_label_fitness(image_size, text_size, text_pos):
         image_width, image_height = image_size
@@ -77,6 +77,8 @@ def draw_objects(image,
             fields.append("{s:.02f}")
         if draw_ids:
             fields.append("id: {i}")
+        # if customs:
+        #     fields.append("{c}")
         format = ", ".join(fields)
 
     width = image.shape[1]
@@ -88,6 +90,8 @@ def draw_objects(image,
 
         if color_by_object_id:
             color = palette[object_id % len(palette)]
+        elif color_by_class_id:
+            color = palette[custom % len(palette)]
         else:
             color = palette[i % len(palette)]
 
